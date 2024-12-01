@@ -1,9 +1,11 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import os
+from dotenv import load_dotenv
 
 class DatabaseController:
     def __init__(self):
+        load_dotenv()
         self.dsn = os.getenv("DB_PASSWORD")
         self.connection = None
 
