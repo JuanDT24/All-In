@@ -1,6 +1,7 @@
+// login.js
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import logo from './Logo.png';
+import logo from './Logo.png'; // Asegúrate de que la ruta es correcta
 
 function Login({ onLogin }) {
   const [isRegistering, setIsRegistering] = useState(false); // Alterna entre login y registro
@@ -8,7 +9,7 @@ function Login({ onLogin }) {
     name: '',
     email: '',
     password: '',
-    confirmPassword: ''
+    confirmPassword: '',
   });
 
   // Maneja los cambios en los inputs
@@ -22,10 +23,11 @@ function Login({ onLogin }) {
     if (isRegistering) {
       // Lógica de registro
       console.log('Usuario registrado:', formData);
+      // Aquí podrías agregar lógica para guardar el nombre del usuario
     } else {
       // Lógica de inicio de sesión
       console.log('Inicio de sesión con:', formData.email);
-      onLogin(); // Cambia a la página principal
+      onLogin(formData.name || formData.email); // Pasamos el nombre o email al App
     }
   };
 
@@ -33,14 +35,14 @@ function Login({ onLogin }) {
     <div
       className="d-flex justify-content-center align-items-center vh-100"
       style={{
-        background: "linear-gradient(135deg, #001f3f, #004080)",
-        color: "#fff",
+        background: 'linear-gradient(135deg, #001f3f, #004080)',
+        color: '#fff',
         fontFamily: "'Poppins', sans-serif",
       }}
     >
       <div
         className="p-4 bg-white rounded shadow-lg text-center"
-        style={{ width: "360px" }}
+        style={{ width: '360px' }}
       >
         {/* Encabezado */}
         <div className="mb-4">
@@ -48,76 +50,96 @@ function Login({ onLogin }) {
             src={logo}
             alt="Logo de All In"
             className="mb-3"
-            style={{ width: "80px", height: "80px" }}
+            style={{ width: '80px', height: '80px' }}
           />
-          <h1 style={{ fontSize: "1.8rem", color: "#001f3f", fontWeight: "700" }}>
+          <h1
+            style={{ fontSize: '1.8rem', color: '#001f3f', fontWeight: '700' }}
+          >
             {isRegistering ? 'Registro' : 'All In'}
           </h1>
-          <p className="text-muted" style={{ fontSize: "0.9rem" }}>
-            {isRegistering ? 'Completa tus datos para crear una cuenta' : 'Inicia sesión para continuar'}
+          <p className="text-muted" style={{ fontSize: '0.9rem' }}>
+            {isRegistering
+              ? 'Completa tus datos para crear una cuenta'
+              : 'Inicia sesión para continuar'}
           </p>
         </div>
         {/* Formulario */}
         <form>
           {isRegistering && (
             <div className="mb-3">
-              <label htmlFor="name" className="form-label" style={{ color: "#001f3f" }}>
+              <label
+                htmlFor="name"
+                className="form-label"
+                style={{ color: '#001f3f' }}
+              >
                 Nombre
               </label>
               <input
                 type="text"
                 id="name"
                 name="name"
-                placeholder="Enter Name"
+                placeholder="Ingresa tu nombre"
                 className="form-control"
-                style={{ borderColor: "#001f3f" }}
+                style={{ borderColor: '#001f3f' }}
                 value={formData.name}
                 onChange={handleInputChange}
               />
             </div>
           )}
           <div className="mb-3">
-            <label htmlFor="email" className="form-label" style={{ color: "#001f3f" }}>
+            <label
+              htmlFor="email"
+              className="form-label"
+              style={{ color: '#001f3f' }}
+            >
               Email
             </label>
             <input
               type="email"
               id="email"
               name="email"
-              placeholder="Enter Email"
+              placeholder="Ingresa tu email"
               className="form-control"
-              style={{ borderColor: "#001f3f" }}
+              style={{ borderColor: '#001f3f' }}
               value={formData.email}
               onChange={handleInputChange}
             />
           </div>
           <div className="mb-3">
-            <label htmlFor="password" className="form-label" style={{ color: "#001f3f" }}>
+            <label
+              htmlFor="password"
+              className="form-label"
+              style={{ color: '#001f3f' }}
+            >
               Contraseña
             </label>
             <input
               type="password"
               id="password"
               name="password"
-              placeholder="Enter Password"
+              placeholder="Ingresa tu contraseña"
               className="form-control"
-              style={{ borderColor: "#001f3f" }}
+              style={{ borderColor: '#001f3f' }}
               value={formData.password}
               onChange={handleInputChange}
             />
           </div>
           {isRegistering && (
             <div className="mb-3">
-              <label htmlFor="confirmPassword" className="form-label" style={{ color: "#001f3f" }}>
+              <label
+                htmlFor="confirmPassword"
+                className="form-label"
+                style={{ color: '#001f3f' }}
+              >
                 Confirmar Contraseña
               </label>
               <input
                 type="password"
                 id="confirmPassword"
                 name="confirmPassword"
-                placeholder="Confirm Password"
+                placeholder="Confirma tu contraseña"
                 className="form-control"
-                style={{ borderColor: "#001f3f" }}
+                style={{ borderColor: '#001f3f' }}
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
               />
@@ -127,9 +149,9 @@ function Login({ onLogin }) {
             type="button"
             className="btn btn-primary w-100"
             style={{
-              background: "#001f3f",
-              borderColor: "#001f3f",
-              transition: "0.3s",
+              background: '#001f3f',
+              borderColor: '#001f3f',
+              transition: '0.3s',
             }}
             onClick={handleSubmit}
           >
@@ -139,10 +161,12 @@ function Login({ onLogin }) {
         <p className="text-center mt-3">
           <button
             className="btn btn-link"
-            style={{ color: "#004080", textDecoration: "none" }}
+            style={{ color: '#004080', textDecoration: 'none' }}
             onClick={() => setIsRegistering(!isRegistering)} // Alterna entre login y registro
           >
-            {isRegistering ? '¿Ya tienes una cuenta? Inicia sesión' : '¿No tienes una cuenta? Regístrate'}
+            {isRegistering
+              ? '¿Ya tienes una cuenta? Inicia sesión'
+              : '¿No tienes una cuenta? Regístrate'}
           </button>
         </p>
       </div>
