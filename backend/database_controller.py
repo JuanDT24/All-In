@@ -1,9 +1,10 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
+import os
 
 class DatabaseController:
     def __init__(self):
-        self.dsn = 'postgres://avnadmin:AVNS_GxIJiNsCvfbaAC1v2Zf@test-projects-databases-projects.b.aivencloud.com:14420/Subastas?sslmode=require'
+        self.dsn = os.getenv("DB_PASSWORD")
         self.connection = None
 
     def connect(self):
