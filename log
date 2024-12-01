@@ -1,0 +1,55 @@
+[33mcommit 81253c6a3555e00cde489e9019dc17459f071563[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mtoro[m[33m)[m
+Author: Alejorotp <98970394+Alejorotp@users.noreply.github.com>
+Date:   Sun Dec 1 11:36:29 2024 -0500
+
+    Conexión a la Base de Datos
+
+[33mcommit c75517d8cd6c1913094a5b279a9e2ae94d6154e5[m
+Merge: b8d1048 dcc3593
+Author: Alejorotp <98970394+Alejorotp@users.noreply.github.com>
+Date:   Sun Dec 1 11:30:03 2024 -0500
+
+    Merge branch 'main' of https://github.com/JuanDT24/All-In into toro
+
+[33mcommit b8d10480e84f836b7eafe9e7b4333222d9e39929[m
+Author: Alejorotp <98970394+Alejorotp@users.noreply.github.com>
+Date:   Sun Dec 1 11:28:22 2024 -0500
+
+    Conexión a la base de Datos
+
+[33mcommit dcc359389265028b12d8b615926432f4810485ed[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m
+Author: Juan Pablo Pérez Abad <abadj@uninorte.edu.co>
+Date:   Sat Nov 30 17:53:11 2024 -0500
+
+    inicio de sesion
+
+[33mcommit e341cefcb23c61431c24838879a2d23b6aac16bc[m
+Author: Juan Pablo Pérez Abad <abadj@uninorte.edu.co>
+Date:   Sat Nov 30 17:20:07 2024 -0500
+
+    login
+
+[33mcommit 4eccfab67190a66ad990fbb07000e530074031f6[m
+Author: Juan Pablo Pérez Abad <abadj@uninorte.edu.co>
+Date:   Sat Nov 30 16:53:19 2024 -0500
+
+    login
+
+[33mcommit d4974d07c3155862901a6eb3c948802d4ae67840[m[33m ([m[1;31morigin/toro[m[33m, [m[1;31morigin/front-develop[m[33m, [m[1;31morigin/back-develop[m[33m, [m[1;32mmain[m[33m, [m[1;32mback-develop[m[33m)[m
+Merge: 84bb7b6 af8857b
+Author: JuanDT24 <tiradodj@uninorte.edu.co>
+Date:   Fri Nov 29 23:19:23 2024 -0500
+
+    Merge branch 'main' of https://github.com/JuanDT24/All-In
+
+[33mcommit 84bb7b672d3b8729d70918497dd3059ff6c485ee[m
+Author: JuanDT24 <tiradodj@uninorte.edu.co>
+Date:   Fri Nov 29 23:16:28 2024 -0500
+
+    First commit
+
+[33mcommit af8857b5e38deb0813b5deb4d5dbd76f213fa4b3[m
+Author: tiradodj <99750010+JuanDT24@users.noreply.github.com>
+Date:   Fri Nov 29 23:12:27 2024 -0500
+
+    Initial commit
