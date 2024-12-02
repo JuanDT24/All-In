@@ -24,7 +24,7 @@ class UserController():
         if result:           
             return result
         else:
-            return {"message":"No se encontró un usuario con ese email"} 
+        raise ValueError("No hay un cliente con ese email")
     
     def check_email(self, email):
         query=client.query(f"Select * from users where email ='{email}'")
