@@ -24,9 +24,7 @@ class itemController():
         else: 
             return f"Couldn't find item with id: {id}"
     def save_image(self, file):
-        backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend'))
-        ### Creas el directorio uploads con pathabsoluto
-        upload_folder = os.path.join(backend_dir, 'uploads')
+        upload_folder = os.path.join(os.path.dirname(__file__), '..', 'uploads')
         os.makedirs(upload_folder, exist_ok=True)
 
         filepath = os.path.join(upload_folder, file.filename)

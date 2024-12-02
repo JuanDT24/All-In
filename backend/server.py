@@ -6,12 +6,9 @@ from controllers.UserController import UserController
 from blueprints.user_info import users_bp
 from blueprints.item_info import items_bp
 app = Flask(__name__, template_folder = '../frontend', static_folder = '../frontend/css')
-<<<<<<< HEAD
 CORS(app)
-UPLOAD_FOLDER = '.backend/uploads'
+UPLOAD_FOLDER = './uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-=======
->>>>>>> 34e5b46d25f7988ba114c794146fbaca5b7776c8
 @app.route('/')
 @app.route('/home')
 
@@ -25,11 +22,6 @@ app.register_blueprint(items_bp)
 
 
 @app.route('/api/users/<email>', methods = ['GET'])
-def login():
-    user_controller = UserController()
-    user=user_controller.getUser_byemail(email)
-    return jsonify(user)
     
-def user_handler():
 if __name__=='__main__':
     app.run(host='0.0.0.0', debug=True)
