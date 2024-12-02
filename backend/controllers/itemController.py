@@ -1,5 +1,6 @@
 from modules.item import Item
 from database_controller import client
+import psycopg2
 import os
 class itemController():
     _instance = None
@@ -11,8 +12,9 @@ class itemController():
         return cls._instance
     def createItem(self, name, description, idSeller, currentPrice, startingPrice, inmediate_Purchase_Price, minimum_Increase, post_Date, start_Date, due_Date, idcategory, image):
         _contador_id = client.query("Select max(iditem) from items")[0]['max'] + 1
-        client.query(f"Insert into items(iditem, name, description, idseller, idcategory, image) VALUES ({_contador_id}, '{name}', '{description}', {idSeller}, {idcategory}, '{image}')")
-        client.query(f"Insert into itempricesettings(iditem, price, startingprice, inmediatepurchaseprice, minimumincrease) VALUES ({_contador_id}, {currentPrice}, {startingPrice}, {inmediate_Purchase_Price}, {minimum_Increase})")
+        image = psycopg2.Binary(image)
+        client.query(f"Insert into items(iditem, name, description, idseller, idcategory, image) VALUES ({_contador_id}, '{name}', '{description}', {idSeller}, {idcategory}, %s)", [image])
+        client.query(f"Insert into itempricesettings(iditem, price, startingprice, immediatepurchaseprice, minimumincrease) VALUES ({_contador_id}, {currentPrice}, {startingPrice}, {inmediate_Purchase_Price}, {minimum_Increase})")
         client.query(f"Insert into itemdate(iditem, postingdate, startingdate, duedate) VALUES ({_contador_id}, '{post_Date}', '{start_Date}', '{due_Date}')")
     def deleteItem(self, id):
         client.query(f"Delete from items where id = {id} ")
@@ -20,7 +22,6 @@ class itemController():
         result = (f"Select from items where id = {id}")
         if result:
             item_data = result[0]
-            
         else: 
             return f"Couldn't find item with id: {id}"
     def save_image(self, file):
@@ -33,6 +34,5 @@ class itemController():
 
         with open(filepath, 'rb') as imagefile:
             image_array = imagefile.read()
-
         return image_array
     
