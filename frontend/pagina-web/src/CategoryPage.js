@@ -1,4 +1,3 @@
-// CategoryPage.js
 import React, { useState } from 'react';
 import categories from './categories';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -15,12 +14,10 @@ function CategoryPage({
 
   const category = categories.find((cat) => cat.id === selectedCategoryId);
 
-  // Filtrar productos que pertenecen a la categoría seleccionada
   const categoryProducts = products.filter(
     (product) => product.categoryId === selectedCategoryId
   );
 
-  // Filtrar productos según el término de búsqueda
   const filteredProducts = categoryProducts.filter((product) =>
     product.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -37,7 +34,6 @@ function CategoryPage({
         minHeight: '100vh',
       }}
     >
-      {/* Barra de navegación */}
       <nav
         className="navbar navbar-expand-lg navbar-dark"
         style={{ backgroundColor: '#001f3f' }}
@@ -72,7 +68,6 @@ function CategoryPage({
         </div>
       </nav>
 
-      {/* Contenido principal */}
       <div className="container mt-4">
         <h2 className="mb-4">
           {category ? `Productos en ${category.name}` : 'Categoría no encontrada'}
@@ -98,11 +93,11 @@ function CategoryPage({
                     <p className="card-text">{product.price}</p>
                     <button
                       className="btn btn-primary"
+                      onClick={() => onProductSelect(product)}
                       style={{
                         backgroundColor: '#001f3f',
                         borderColor: '#001f3f',
                       }}
-                      onClick={() => onProductSelect(product)}
                     >
                       Comprar
                     </button>
@@ -112,14 +107,9 @@ function CategoryPage({
             ))
           ) : (
             <div className="col-12">
-              <p className="text-center">No se encontraron productos.</p>
+              <p className="text-center">No hay productos en esta categoría.</p>
             </div>
           )}
-        </div>
-        <div className="mt-4">
-          <button onClick={onLogoClick} className="btn btn-secondary">
-            Volver a categorías
-          </button>
         </div>
       </div>
     </div>
@@ -127,3 +117,4 @@ function CategoryPage({
 }
 
 export default CategoryPage;
+

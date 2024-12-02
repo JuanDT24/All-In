@@ -6,9 +6,10 @@ import Electrodoméstico from './imgpag/electrodomestico.jpg';
 import Deportes from './imgpag/deportes.jpg';
 import Juegos from './imgpag/juegos.jpg';
 import Moda from './imgpag/moda.jpg';
-import Medicamentos from './imgpag/medicamento.jpg';
+
 import Hogar from './imgpag/hogar.jpg';
 import inmuebles from './imgpag/inmuebles.jpg';
+import libros from './Naruto.jpg'
 
 const categories = [
     {
@@ -48,8 +49,8 @@ const categories = [
     },
     {
       id: 8,
-      name: 'Medicamentos',
-      image: Medicamentos
+      name: 'Libros',
+      image: libros
     },
     {
         id: 9,
