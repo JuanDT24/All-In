@@ -19,9 +19,5 @@ def home_page():
 app.register_blueprint(users_bp)
 app.register_blueprint(items_bp)
 
-
-
-@app.route('/api/users/<email>', methods = ['GET'])
-    
 if __name__=='__main__':
     app.run(host='0.0.0.0', debug=True)
