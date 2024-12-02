@@ -6,10 +6,13 @@ import logo from './Logo.png'; // Asegúrate de que la ruta es correcta
 function Login({ onLogin }) {
   const [isRegistering, setIsRegistering] = useState(false); // Alterna entre login y registro
   const [formData, setFormData] = useState({
-    name: '',
     email: '',
     password: '',
     confirmPassword: '',
+    name: '',
+    lastname: '',
+    phonenumber: '',
+    address: '',
   });
 
   // Maneja los cambios en los inputs
@@ -19,15 +22,60 @@ function Login({ onLogin }) {
   };
 
   // Manejadores de botones
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (isRegistering) {
-      // Lógica de registro
-      console.log('Usuario registrado:', formData);
-      // Aquí podrías agregar lógica para guardar el nombre del usuario
+      // Validación básica antes de enviar
+      if (formData.password !== formData.confirmPassword) {
+        alert("Las contraseñas no coinciden.");
+        return;
+      }
+      const requestData = {
+        email: formData.email,
+        password: formData.password,
+        name: formData.name,
+        LastName: formData.lastname,
+        PhoneNumber: formData.phonenumber,
+        Address: formData.address,
+      };
+
+      console.log("JSON que se enviará:", requestData); // Inspeccionar el JSON antes de enviarlo
+      try {
+        const response = await fetch('http://localhost:5000/api/users', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestData),
+        });
+
+        const data = await response.json();
+        console.log("Respuesta del servidor:", data);
+        if (response.ok) {
+          alert('Usuario registrado exitosamente');
+          setIsRegistering(false); // Cambia al modo de login después de registrar
+        } else {
+          alert(`Error: ${data.message || 'Ocurrió un error al registrar'}`);
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al conectar con el servidor');
+      }
     } else {
-      // Lógica de inicio de sesión
-      console.log('Inicio de sesión con:', formData.email);
-      onLogin(formData.name || formData.email); // Pasamos el nombre o email al App
+      try {
+        const response = await fetch(`http://localhost:5000/api/users/${formData.email}`);
+        const data = await response.json();
+        if (response.ok) {
+          if (data.password === formData.password.value) {
+            alert('Inicio de sesión exitoso');
+            onLogin(formData.email); // Pasamos el email al componente padre
+          } else {
+            alert(`Error: ${data.message || 'Credenciales incorrectas'}`);
+          }
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error al conectar con el servidor');
+      }
     }
   };
 
@@ -65,27 +113,7 @@ function Login({ onLogin }) {
         </div>
         {/* Formulario */}
         <form>
-          {isRegistering && (
-            <div className="mb-3">
-              <label
-                htmlFor="name"
-                className="form-label"
-                style={{ color: '#001f3f' }}
-              >
-                Nombre
-              </label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                placeholder="Ingresa tu nombre"
-                className="form-control"
-                style={{ borderColor: '#001f3f' }}
-                value={formData.name}
-                onChange={handleInputChange}
-              />
-            </div>
-          )}
+          {/* Campos que aparecen en ambos modos */}
           <div className="mb-3">
             <label
               htmlFor="email"
@@ -124,27 +152,111 @@ function Login({ onLogin }) {
               onChange={handleInputChange}
             />
           </div>
+
+          {/* Campos adicionales para el registro */}
           {isRegistering && (
-            <div className="mb-3">
-              <label
-                htmlFor="confirmPassword"
-                className="form-label"
-                style={{ color: '#001f3f' }}
-              >
-                Confirmar Contraseña
-              </label>
-              <input
-                type="password"
-                id="confirmPassword"
-                name="confirmPassword"
-                placeholder="Confirma tu contraseña"
-                className="form-control"
-                style={{ borderColor: '#001f3f' }}
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
-              />
-            </div>
+            <>
+              <div className="mb-3">
+                <label
+                  htmlFor="confirmPassword"
+                  className="form-label"
+                  style={{ color: '#001f3f' }}
+                >
+                  Confirmar Contraseña
+                </label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  placeholder="Confirma tu contraseña"
+                  className="form-control"
+                  style={{ borderColor: '#001f3f' }}
+                  value={formData.confirmPassword}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div className="mb-3">
+                <label
+                  htmlFor="name"
+                  className="form-label"
+                  style={{ color: '#001f3f' }}
+                >
+                  Nombre
+                </label>
+                <input
+                  type="text"
+                  id="name"
+                  name="name"
+                  placeholder="Ingresa tu nombre"
+                  className="form-control"
+                  style={{ borderColor: '#001f3f' }}
+                  value={formData.name}
+                  onChange={handleInputChange}
+                />
+              </div>
+
+              <div className="mb-3">
+                <label
+                  htmlFor="lastname"
+                  className="form-label"
+                  style={{ color: '#001f3f' }}
+                >
+                  Apellido
+                </label>
+                <input
+                  type="text"
+                  id="lastname"
+                  name="lastname"
+                  placeholder="Ingresa tu apellido"
+                  className="form-control"
+                  style={{ borderColor: '#001f3f' }}
+                  value={formData.lastname}
+                  onChange={handleInputChange}
+                />
+              </div>
+
+              <div className="mb-3">
+                <label
+                  htmlFor="phonenumber"
+                  className="form-label"
+                  style={{ color: '#001f3f' }}
+                >
+                  Teléfono
+                </label>
+                <input
+                  type="text"
+                  id="phonenumber"
+                  name="phonenumber"
+                  placeholder="Ingresa tu número de teléfono"
+                  className="form-control"
+                  style={{ borderColor: '#001f3f' }}
+                  value={formData.phonenumber}
+                  onChange={handleInputChange}
+                />
+              </div>
+
+              <div className="mb-3">
+                <label
+                  htmlFor="address"
+                  className="form-label"
+                  style={{ color: '#001f3f' }}
+                >
+                  Dirección
+                </label>
+                <input
+                  type="text"
+                  id="address"
+                  name="address"
+                  placeholder="Ingresa tu dirección"
+                  className="form-control"
+                  style={{ borderColor: '#001f3f' }}
+                  value={formData.address}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </>
           )}
+
           <button
             type="button"
             className="btn btn-primary w-100"
