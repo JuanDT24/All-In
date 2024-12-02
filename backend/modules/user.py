@@ -8,3 +8,6 @@ class User:
         self.Address = Address
         self.StarsSeller = StarsSeller
         self.StarsCustomer = StarsCustomer
+        
+    def __str__(self):
+        return f"User({self.iduser}, {self.email}, {self.name}, {self.lastname})"
