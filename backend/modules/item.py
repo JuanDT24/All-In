@@ -10,7 +10,7 @@ class Item:
         self.post_Date = post_Date
         self.start_Date = start_Date
         self.due_Date = due_Date
-        self.category = idcategory
+        self.categories = idcategory
         
 
         
