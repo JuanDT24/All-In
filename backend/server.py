@@ -4,9 +4,11 @@ from flask_cors import CORS
 from database_controller import client
 from controllers.UserController import UserController
 from blueprints.user_info import users_bp
+from blueprints.item_info import items_bp
 app = Flask(__name__, template_folder = '../frontend', static_folder = '../frontend/css')
 CORS(app)
-
+UPLOAD_FOLDER = '.backend/uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 @app.route('/')
 @app.route('/home')
 def home_page():
@@ -14,6 +16,7 @@ def home_page():
     print(client.query("SELECT * FROM users"))
     return render_template('index.html')
 app.register_blueprint(users_bp)
+app.register_blueprint(items_bp)
 
 
 

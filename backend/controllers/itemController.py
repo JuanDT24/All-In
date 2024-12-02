@@ -1,8 +1,7 @@
-from modules.item import item
+from modules.item import Item
 from database_controller import client
-
+import os
 class itemController():
-    _contador_id : int
     _instance = None
 
     def __new__(cls, *args, **kwargs):
@@ -12,9 +11,9 @@ class itemController():
         return cls._instance
     def createItem(self, name, description, idSeller, currentPrice, startingPrice, inmediate_Purchase_Price, minimum_Increase, post_Date, start_Date, due_Date, idcategory, image):
         _contador_id = client.query("Select max(iditem) from items")[0]['max'] + 1
-        client.query(f"Insert into items(iditem, name, description, idseller, idcategory, image) VALUES ({self._contador_id}, '{name}', '{description}', {idSeller}, {idcategory}, {image})")
-        client.query(f"Insert into itempricesettings(iditem, price, startingprice, inmediatepurchaseprice, minimumincrease) VALUES ({self._contador_id}, {currentPrice}, {startingPrice}, {inmediate_Purchase_Price}, {minimum_Increase})")
-        client.query(f"Insert into itemdate(iditem, postingdate, startingdate, duedate) VALUE ({_contador_id}, {post_Date}, {start_Date}, {due_Date})")
+        client.query(f"Insert into items(iditem, name, description, idseller, idcategory, image) VALUES ({_contador_id}, '{name}', '{description}', {idSeller}, {idcategory}, '{image}')")
+        client.query(f"Insert into itempricesettings(iditem, price, startingprice, inmediatepurchaseprice, minimumincrease) VALUES ({_contador_id}, {currentPrice}, {startingPrice}, {inmediate_Purchase_Price}, {minimum_Increase})")
+        client.query(f"Insert into itemdate(iditem, postingdate, startingdate, duedate) VALUES ({_contador_id}, '{post_Date}', '{start_Date}', '{due_Date}')")
     def deleteItem(self, id):
         client.query(f"Delete from items where id = {id} ")
     def getItem(self, id):
@@ -24,4 +23,18 @@ class itemController():
             
         else: 
             return f"Couldn't find item with id: {id}"
+    def save_image(self, file):
+        backend_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend'))
+        ### Creas el directorio uploads con pathabsoluto
+        upload_folder = os.path.join(backend_dir, 'uploads')
+        os.makedirs(upload_folder, exist_ok=True)
+
+        filepath = os.path.join(upload_folder, file.filename)
+
+        file.save(filepath)
+
+        with open(filepath, 'rb') as imagefile:
+            image_array = imagefile.read()
+
+        return image_array
     

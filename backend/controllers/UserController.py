@@ -1,6 +1,5 @@
 from modules.user import User
 from database_controller import client
-
 class UserController():
     _instance = None
 
