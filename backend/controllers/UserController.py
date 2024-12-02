@@ -1,7 +1,6 @@
 from modules.user import User
 from database_controller import client
 class UserController():
-    _contador_id = client.query("Select max(iduser) from users")[0]['max']
     _instance = None
 
     def __new__(cls, *args, **kwargs):
@@ -12,9 +11,9 @@ class UserController():
 
     def createUser(self, email:str, password:str, name:str, LastName:str, PhoneNumber:int, Address:str):
         if not(self.check_email(email)):
+            self._contador_id = client.query("Select max(iduser) from users")[0]['max'] + 1
             client.query(f"INSERT into users (iduser, email, name, lastname, phonenumber, address, starsseller, starscustomer, password)
             VALUES ({self._contador_id}, '{email}', '{name}', '{LastName}', {PhoneNumber}, '{Address}', 0, 0, '{password}')")
-            self._contador_id = client.query("Select max(iduser) from users")[0]['max'] + 1
         else: 
             raise ValueError ("El correo electrónico ya está en uso")
     def deleteUser(self, id): 
