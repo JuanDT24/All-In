@@ -28,11 +28,23 @@ def register_user():
     
     except Exception as e:
         return jsonify({"error": "Error interno del servidor"}), 500
-@app.route('/api/users/<email>', methods = ['GET'])
+@app.route('/api/users/<email>', methods = ['GET', 'DELETE'])
 def login(email):
     user_controller = UserController()
-    user=user_controller.getUser_byemail(email)
-    return jsonify(user)
+    if request.method == 'GET':   
+        user=user_controller.getUser_byemail(email)
+        if(user):
+            return jsonify(user)
+        else:
+            return ({"message": "Usuario no encontrado"}), 404
+    elif request.method == 'DELETE':
+        try:
+            user_controller.deleteUser(email)
+            return jsonify({"message": "Usuario eliminado exitosamente"}), 200
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+
+
 
 
 if __name__=='__main__':
