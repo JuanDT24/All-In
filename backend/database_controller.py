@@ -31,3 +31,7 @@ class DatabaseController:
         except Exception as e:
             print(f"Error executing query: {e}")
             raise
+
+### Instancia única            
+client = DatabaseController()
+client.connect()
