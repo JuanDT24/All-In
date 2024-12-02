@@ -19,6 +19,7 @@ class UserController():
             raise ValueError ("El correo electrónico ya está en uso")
     def deleteUser(self, id): 
         client.query(f"Delete from users where iduser = {id}")
+    
     def getUser_byemail(self, email):
         result = client.query(f"Select * from users where email = '{email}'")
         if result:
@@ -37,6 +38,7 @@ class UserController():
 
             return user
         return None
+    
     def check_email(self, email):
         query=client.query(f"Select * from users where email ='{email}'")
         if len(query) > 0:
