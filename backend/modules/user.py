@@ -8,3 +8,4 @@ class User:
         self.Address = Address
         self.StarsSeller = StarsSeller
         self.StarsCustomer = StarsCustomer
+    
