@@ -4,14 +4,17 @@ import ReactDOM from 'react-dom/client';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+// Selecciona el contenedor raíz en el DOM donde se montará la aplicación
 const root = ReactDOM.createRoot(document.getElementById('root'));
+
+// Renderiza el componente principal <App /> dentro de React.StrictMode
 root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
 );
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
+// Si quieres medir el rendimiento de tu aplicación, pasa una función
+// para registrar resultados (por ejemplo: reportWebVitals(console.log))
+// o envíalos a un servicio de análisis. Más información en https://bit.ly/CRA-vitals
 reportWebVitals();
