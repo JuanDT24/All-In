@@ -21,22 +21,10 @@ class UserController():
     
     def getUser_byemail(self, email):
         result = client.query(f"Select * from users where email = '{email}'")
-        if result:
-            user_data = result[0]
-            user = User(
-                user_data['iduser'],
-                user_data['email'],
-                user_data['password'],
-                user_data['name'],
-                user_data['lastname'],
-                user_data['phonenumber'],
-                user_data['address'],
-                user_data['starsseller'],
-                user_data['starscustomer']
-            )
-
-            return user
-        return None
+        if result:           
+            return result
+        else:
+        raise ValueError("No hay un cliente con ese email")
     
     def check_email(self, email):
         query=client.query(f"Select * from users where email ='{email}'")

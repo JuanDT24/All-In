@@ -21,16 +21,7 @@ class itemController():
         result = (f"Select from items where id = {id}")
         if result:
             item_data = result[0]
-            item = Item(
-                item_data['iditem'],
-                item_data['name'],
-                item_data['description'],
-                item_data['idseller'],
-                item_data['idbuyer'],
-                item_data['idcategory'],
-                item_data['image'],
-             ) 
-             r
+            
         else: 
             return f"Couldn't find item with id: {id}"
     
