@@ -26,6 +26,10 @@ class itemController():
             return result
         else: 
             return {"message":f"Couldn't find item with id: {id}"}
+    def getItems_per_category(self, idcategory):
+        result = client.query(f"Select iditem, name, description, idseller, idcategory from items where idcategory = {idcategory}")
+        if result:
+            return result
         
     def getDateInfo(self, id):
         result = client.query(f"Select * from itemdate where iditem = {id}")
