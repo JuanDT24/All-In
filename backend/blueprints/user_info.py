@@ -35,3 +35,4 @@ def search_user(email):
         except ValueError as e:
             return jsonify({"error": str(e)}), 400
 
+
