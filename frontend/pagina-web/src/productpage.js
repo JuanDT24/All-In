@@ -73,8 +73,8 @@ function ProductPage({ userName, product, onLogoClick, onBack, onPurchase }) {
     setShowPurchaseModal(false);
   };
 
-  const handleBidSubmit = () => {
-    const minimumBid = parseFloat(product.auctionPrice) + parseFloat(product.minBidIncrement);
+  const handleBidSubmit = async() => {
+    const minimumBid = parseFloat(product.BidPrice) + parseFloat(product.minBidIncrement);
     const enteredBid = parseFloat(bidAmount);
 
     if (isNaN(enteredBid)) {
@@ -87,8 +87,44 @@ function ProductPage({ userName, product, onLogoClick, onBack, onPurchase }) {
       return;
     }
 
+    const response = await fetch(`http://localhost:5000/api/users/${userName}`);
+    const dataUser = await response.json();
+
+    let ImmPur = false
+    if(enteredBid >= product.instantBuyPrice){
+      ImmPur = true
+    }
+
+    const bidData = {
+      IdItem: product.id,
+      IdBidder: dataUser[0].iduser,
+      Price: enteredBid,
+      BidDate: new Date().toISOString(),
+      ImmediatePurchase: ImmPur
+    };
+
+    try {
+      const response = await fetch('http://localhost:5000/api/bids/',{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bidData)
+      });
+      const data = await response.json();
+      if (!response.ok){
+        alert('Error al Pujar')
+      }
+      alert('Puja Exitosa')
+      
+    } catch (error){
+      alert('Error al conectar con el servidor')
+    }
+
     alert(`Tu oferta de ${formatCurrency(enteredBid)} ha sido registrada para el producto: ${product.name}`);
     setShowBidModal(false);
+
+
   };
 
   const formatCurrency = (value) => {
@@ -365,7 +401,7 @@ function ProductPage({ userName, product, onLogoClick, onBack, onPurchase }) {
                     <small className="form-text text-muted">
                       El monto mínimo para pujar es{' '}
                       {formatCurrency(
-                        parseFloat(product.auctionPrice) +
+                        parseFloat(product.BidPrice) +
                           parseFloat(product.minBidIncrement)
                       )}
                       .

@@ -12,8 +12,7 @@ class BidController():
 
     def createBid(self, IdItem:int, IdBidder:int, Price:float, BidDate:str, ImmediatePurchase:bool):
         self._contador_id = client.query("Select max(idbid) from bids")[0]['max'] + 1
-        client.query(f"INSERT into bids (idbid, iditem, idbidder, price, biddate, immediatepurchase)
-        VALUES ({self._contador_id}, {IdItem}, {IdBidder}, {Price}, '{BidDate}', {ImmediatePurchase})")
+        client.query(f"INSERT into bids (idbid, iditem, idbidder, price, biddate, immediatepurchase) VALUES ({self._contador_id}, {IdItem}, {IdBidder}, {Price}, '{BidDate}', {ImmediatePurchase})")
     
     def deleteBid(self, id): 
         client.query(f"Delete from bids where idbid = {id}")
