@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from controllers.UserController import UserController
+
 users_bp = Blueprint('users', __name__, url_prefix = "/api/users")
 
 @users_bp.route("/", methods = ["POST"])
@@ -34,3 +35,17 @@ def login(email):
             return jsonify({"message": "Usuario eliminado exitosamente"}), 200
         except ValueError as e:
             return jsonify({"error": str(e)}), 400
+        except Exception as e:
+            return jsonify({"error": "Error interno del servidor"}), 500
+
+@users_bp.route("/<email>", methods = ["PUT"])
+def edit_user(email):
+    user_controller = UserController()
+    try:
+        data = request.get_json()
+        user_controller.editUser(email, data)
+        return jsonify({"message": "Usuario editado exitosamente"}), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": "Error interno del servidor"}), 500
