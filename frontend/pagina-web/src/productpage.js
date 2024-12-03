@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import logo from './Logo.png';
 
-function ProductPage({ userName, product, onLogoClick, onBack, onPurchase }) {
+function ProductPage({userEmail, userName, product, onLogoClick, onBack, onPurchase }) {
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [showBidModal, setShowBidModal] = useState(false);
   const [bidAmount, setBidAmount] = useState('');
@@ -87,7 +87,7 @@ function ProductPage({ userName, product, onLogoClick, onBack, onPurchase }) {
       return;
     }
 
-    const response = await fetch(`http://localhost:5000/api/users/${userName}`);
+    const response = await fetch(`http://localhost:5000/api/users/${userEmail}`);
     const dataUser = await response.json();
 
     let ImmPur = false
