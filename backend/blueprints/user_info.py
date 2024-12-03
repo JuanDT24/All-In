@@ -19,8 +19,8 @@ def register_user():
     except Exception as e:
         return jsonify({"error": "Error interno del servidor"}), 500
 
-@users_bp.route("/<email>", methods = ["GET", "POST"])
-def login(email):
+@users_bp.route("/<email>", methods = ["GET", "DELETE"])
+def search_user(email):
     user_controller = UserController()
     if request.method == 'GET':   
         user=user_controller.getUser_byemail(email)
@@ -34,3 +34,4 @@ def login(email):
             return jsonify({"message": "Usuario eliminado exitosamente"}), 200
         except ValueError as e:
             return jsonify({"error": str(e)}), 400
+

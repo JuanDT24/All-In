@@ -31,7 +31,7 @@ function SellPage({ userName, onLogoClick, onProductSubmit }) {
   };
 
   // Manejador del formulario
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Validar que todos los campos estén completos
@@ -67,6 +67,42 @@ function SellPage({ userName, onLogoClick, onProductSubmit }) {
 
     // Llamamos a la función para agregar el producto
     onProductSubmit(newProduct);
+
+    
+    const response = await fetch(`http://localhost:5000/api/users/${userName}`);
+    const dataUser = await response.json();
+    console.log(dataUser);
+
+    const productData = new FormData();
+    productData.append('name', formData.name);
+    productData.append('description', formData.description);
+    productData.append('idseller', dataUser[0].iduser);
+    productData.append('current_price', formData.auctionPrice);
+    productData.append('starting_price', formData.auctionPrice);
+    productData.append('inmediate_purchase_price', formData.instantBuyPrice);
+    productData.append('minimum_increase', formData.minBidIncrement);
+    productData.append('post_date', new Date().toISOString());
+    productData.append('start_date', new Date().toISOString());
+    productData.append('due_date', formData.auctionEndDate);
+    productData.append('idcategory', parseInt(formData.categoryId));
+    productData.append('image', formData.image);
+    try {
+      const response = await fetch("http://localhost:5000/api/items/", {
+        method: 'POST',
+        body: productData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        alert('Producto Subido Correctamente');
+      } else {
+        alert(`Error: ${data.message || 'Ocurrió un error al registrar'}`);
+      }
+    } catch (error){
+      console.error('Error:', error);
+      alert('Error al conectar con el servidor');
+    }
 
     // Reiniciamos el formulario
     setFormData({
@@ -265,4 +301,4 @@ function SellPage({ userName, onLogoClick, onProductSubmit }) {
   );
 }
 
-export default SellPage;
+export default SellPage;
