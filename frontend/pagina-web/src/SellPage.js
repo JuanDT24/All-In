@@ -4,7 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import categories from './categories';
 import logo from './Logo.png';
 
-function SellPage({ userName, onLogoClick, onProductSubmit }) {
+function SellPage({ userEmail,userName,onLogoClick, onProductSubmit }) {
   const [formData, setFormData] = useState({
     categoryId: '',
     name: '',
@@ -69,7 +69,7 @@ function SellPage({ userName, onLogoClick, onProductSubmit }) {
     onProductSubmit(newProduct);
 
     
-    const response = await fetch(`http://localhost:5000/api/users/${userName}`);
+    const response = await fetch(`http://localhost:5000/api/users/${userEmail}`);
     const dataUser = await response.json();
     console.log(dataUser);
 

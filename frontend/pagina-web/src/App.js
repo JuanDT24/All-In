@@ -18,12 +18,13 @@ function App() {
   const [products, setProducts] = useState([]); // Almacenar productos subastados por usuarios
   const [misCompras, setMisCompras] = useState([]); // Almacenar compras del usuario
   const [misVentas, setMisVentas] = useState([]); // Almacenar ventas del usuario
-  const [currentUser, setCurrentUser] = useState(null);
-
-  const handleLogin = (name) => {
+  const [currentUser, setCurrentUser] = useState(null); // Almacenar datos completos del usuario
+  const[userEmail,setUserEmail]=useState("");
+  const handleLogin = (userData) => {
     setIsLoggedIn(true);
-    setUserName(name);
-    // Aquí podrías establecer currentUser si tienes más información del usuario
+    setUserName(userData.name);
+    setCurrentUser(userData); // Guardamos toda la información del usuario
+    setUserEmail(userData.email);
   };
 
   const handleLogout = () => {
@@ -32,7 +33,7 @@ function App() {
     setCurrentPage('main');
     setSelectedCategoryId(null);
     setSelectedProduct(null);
-    setCurrentUser(null);
+    setCurrentUser(null); // Limpiamos la información del usuario
     // Limpia cualquier otro estado si es necesario
   };
 
@@ -90,6 +91,7 @@ function App() {
       {currentPage === 'main' && (
         <MainPage
           userName={userName}
+          userEmail={userEmail}
           onCategorySelect={handleCategorySelect}
           onLogoClick={handleLogoClick}
           onSellClick={handleSellClick}
@@ -100,6 +102,7 @@ function App() {
       {currentPage === 'category' && (
         <CategoryPage
           userName={userName}
+          userEmail={userEmail}
           selectedCategoryId={selectedCategoryId}
           onLogoClick={handleLogoClick}
           onProductSelect={handleProductSelect}
@@ -109,6 +112,7 @@ function App() {
       {currentPage === 'product' && (
         <ProductPage
           userName={userName}
+          userEmail={userEmail}
           product={selectedProduct}
           onLogoClick={handleLogoClick}
           onBack={() => setCurrentPage('category')}
@@ -118,16 +122,23 @@ function App() {
       {currentPage === 'sell' && (
         <SellPage
           userName={userName}
+          userEmail={userEmail}
           onLogoClick={handleLogoClick}
           onProductSubmit={handleProductSubmit}
         />
       )}
       {currentPage === 'perfil' && (
-        <ProfilePage userName={userName} onLogoClick={handleLogoClick} />
+        <ProfilePage
+          userName={userName}
+          userEmail={userEmail}
+          currentUser={currentUser}
+          onLogoClick={handleLogoClick}
+        />
       )}
       {currentPage === 'misCompras' && (
         <MisComprasPage
           userName={userName}
+          userEmail={userEmail}
           onLogoClick={handleLogoClick}
           misCompras={misCompras}
         />
@@ -135,6 +146,7 @@ function App() {
       {currentPage === 'misVentas' && (
         <MisVentasPage
           userName={userName}
+          userEmail={userEmail}
           onLogoClick={handleLogoClick}
           misVentas={misVentas}
         />
