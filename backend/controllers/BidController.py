@@ -81,3 +81,9 @@ class BidController():
             )
             return bid
         return None
+    
+    def getMaxBidbyItem(self, id):
+        result = client.query(f"Select max(price) from bids where iditem = {id}")
+        if result:
+            return result[0]['max']
+        return None
