@@ -9,7 +9,7 @@ def create_item():
     item_controller = itemController()
     try:
         if 'image' not in request.files:
-            return jsonify({"error": "No image file provided"}), 400
+            return jsonify({"error": "No se encontró el archivo de imagen"}), 400
         imagefile = request.files['image']
         if imagefile.filename == '':
             return jsonify({"error": "No se seleccionó ninguna imagen"}), 400
@@ -51,7 +51,7 @@ def get_image(id):
         ### Convert the bytes to an image and then send them as a response
         return send_file(BytesIO(image), as_attachment=False, mimetype='image/png')
     else:
-        return({"message": f"Couldn't find image"}), 404
+        return jsonify({"message": f"Couldn't find image"}), 404
 
 @items_bp.route("/dateinfo/<int:id>")
 def get_dateInfo(id):
@@ -60,7 +60,7 @@ def get_dateInfo(id):
     if(info):
         return jsonify(info)
     else:
-        return ({"message": f"Couldn't find date information for item with id: {id}"}), 404
+        return jsonify({"message": f"Couldn't find date information for item with id: {id}"}), 404
 @items_bp.route("/priceinfo/<int:id>")
 def get_priceInfo(id):
     item_controller = itemController()
@@ -69,5 +69,4 @@ def get_priceInfo(id):
         return jsonify(info)
     else:
         return jsonify({"message":f"Couldn't find price information for item with id: {id}"}), 404
-    
     
