@@ -9,14 +9,12 @@ def create_item():
     item_controller = itemController()
     try:
         if 'image' not in request.files:
-            return jsonify({"error": "No image file provided"}), 400
+            return jsonify({"error": "No se encontró el archivo de imagen"}), 400
         imagefile = request.files['image']
         if imagefile.filename == '':
             return jsonify({"error": "No se seleccionó ninguna imagen"}), 400
         image = item_controller.save_image(imagefile)
         item_data = request.form.to_dict()
-        for key, value in item_data.items():
-            print(f"{key}: {value}")
         item_controller.createItem(item_data["name"], item_data["description"], item_data["idseller"], item_data["current_price"], item_data["starting_price"], item_data["inmediate_purchase_price"], item_data["minimum_increase"], item_data["post_date"],item_data["start_date"],item_data["due_date"],item_data["idcategory"], image)
         return jsonify({"message" : "Item añadido correctamente"}), 201
     except ValueError as e:
@@ -33,13 +31,22 @@ def item_handler(id):
             del item[0]['image']
             return jsonify(item)
         else:
-            return ({"message": "Usuario no encontrado"}), 404
+            return jsonify({"message": "Usuario no encontrado"}), 404
     elif request.method == 'DELETE':
         try:
             item_controller.deleteUser(id)
             return jsonify({"message": "Item eliminado exitosamente"}), 200
         except ValueError as e:
             return jsonify({"error": str(e)}), 400
+@items_bp.route("/get-items-category/<int:categoryid>")
+def show_items_category(categoryid):
+    item_controller = itemController()
+    items = item_controller.getItems_per_category(categoryid)
+    if(items):
+        return jsonify(items)
+    else:
+        return jsonify({"message": "No se encontraron items en esa categoría"}), 404
+
 @items_bp.route("/get-item-image/<int:id>")
 def get_image(id):
     item_controller = itemController()
@@ -51,23 +58,16 @@ def get_image(id):
         ### Convert the bytes to an image and then send them as a response
         return send_file(BytesIO(image), as_attachment=False, mimetype='image/png')
     else:
-        return({"message": f"Couldn't find image"}), 404
+        return jsonify({"message": f"Couldn't find image"}), 404
 
 @items_bp.route("/dateinfo/<int:id>")
 def get_dateInfo(id):
     item_controller = itemController()
     info = item_controller.getDateInfo(id)
     if(info):
-        return jsonify(info)
-    else:
-        return ({"message": f"Couldn't find date information for item with id: {id}"}), 404
-@items_bp.route("/priceinfo/<int:id>")
-def get_priceInfo(id):
-    item_controller = itemController()
-    info = item_controller.getPriceInfo(id)
+        return jsonify(info) 
     if(info):
         return jsonify(info)
     else:
         return jsonify({"message":f"Couldn't find price information for item with id: {id}"}), 404
-    
     
