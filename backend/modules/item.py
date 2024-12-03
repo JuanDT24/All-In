@@ -1,5 +1,5 @@
 class Item:
-    def __init__(name, description, idSeller, currentPrice,startingPrice, inmediate_Purchase_Price, minimum_Increase, post_Date, start_Date, due_Date, idcategory, image):
+    def __init__(self, name, description, idSeller, currentPrice,startingPrice, inmediate_Purchase_Price, minimum_Increase, post_Date, start_Date, due_Date, idcategory, image):
         self.name = name 
         self.description = description
         self.idSeller = idSeller

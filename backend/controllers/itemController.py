@@ -1,5 +1,6 @@
 from modules.item import Item
 from database_controller import client
+import psycopg2
 import os
 class itemController():
     _instance = None
@@ -11,18 +12,25 @@ class itemController():
         return cls._instance
     def createItem(self, name, description, idSeller, currentPrice, startingPrice, inmediate_Purchase_Price, minimum_Increase, post_Date, start_Date, due_Date, idcategory, image):
         _contador_id = client.query("Select max(iditem) from items")[0]['max'] + 1
-        client.query(f"Insert into items(iditem, name, description, idseller, idcategory, image) VALUES ({_contador_id}, '{name}', '{description}', {idSeller}, {idcategory}, '{image}')")
-        client.query(f"Insert into itempricesettings(iditem, price, startingprice, inmediatepurchaseprice, minimumincrease) VALUES ({_contador_id}, {currentPrice}, {startingPrice}, {inmediate_Purchase_Price}, {minimum_Increase})")
+        image = psycopg2.Binary(image)
+        client.query(f"Insert into items(iditem, name, description, idseller, idcategory, image) VALUES ({_contador_id}, '{name}', '{description}', {idSeller}, {idcategory}, %s)", [image])
+        client.query(f"Insert into itempricesettings(iditem, price, startingprice, immediatepurchaseprice, minimumincrease) VALUES ({_contador_id}, {currentPrice}, {startingPrice}, {inmediate_Purchase_Price}, {minimum_Increase})")
         client.query(f"Insert into itemdate(iditem, postingdate, startingdate, duedate) VALUES ({_contador_id}, '{post_Date}', '{start_Date}', '{due_Date}')")
     def deleteItem(self, id):
-        client.query(f"Delete from items where id = {id} ")
+        client.query(f"Delete from items where iditem = {id} ")
     def getItem(self, id):
-        result = (f"Select from items where id = {id}")
+        result = client.query(f"Select * from items where iditem = {id}")
         if result:
-            item_data = result[0]
-            
+            return result
         else: 
-            return f"Couldn't find item with id: {id}"
+            return {"message":f"Couldn't find item with id: {id}"}
+    def getDateInfo(self, id):
+        result = client.query(f"Select * from itemdate where iditem = {id}")
+        return result
+    def getPriceInfo(self, id):
+        result = client.query(f"Select * from itempricesettings where iditem = %s", (id,))
+        return result
+
     def save_image(self, file):
         upload_folder = os.path.join(os.path.dirname(__file__), '..', 'uploads')
         os.makedirs(upload_folder, exist_ok=True)
@@ -33,6 +41,11 @@ class itemController():
 
         with open(filepath, 'rb') as imagefile:
             image_array = imagefile.read()
-
         return image_array
+    def get_image_with_id(self, id):
+        image = client.query(f"Select image from items where iditem = {id}")
+        if image:
+            return image
+        else: 
+            return None
     
