@@ -1,5 +1,5 @@
 from database_controller import client
-from controllers.ItemController import itemController
+from controllers.itemController import itemController
 from controllers.BidController import BidController
 
 
