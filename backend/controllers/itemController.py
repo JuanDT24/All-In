@@ -42,4 +42,10 @@ class itemController():
         with open(filepath, 'rb') as imagefile:
             image_array = imagefile.read()
         return image_array
+    def get_image_with_id(self, id):
+        image = client.query(f"Select image from items where iditem = {id}")
+        if image:
+            return image
+        else: 
+            return None
     

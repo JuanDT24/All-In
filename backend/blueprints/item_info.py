@@ -1,5 +1,7 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_file
 from controllers.itemController import itemController
+from io import BytesIO
+
 items_bp = Blueprint("items", __name__, url_prefix="/api/items")
 
 @items_bp.route("/", methods = ["POST"])
@@ -38,6 +40,19 @@ def item_handler(id):
             return jsonify({"message": "Item eliminado exitosamente"}), 200
         except ValueError as e:
             return jsonify({"error": str(e)}), 400
+@items_bp.route("/get-item-image/<int:id>")
+def get_image(id):
+    item_controller = itemController()
+    ## Get image with get_image_with_id method
+    image = item_controller.get_image_with_id(id)
+    if image:
+        ## if there is an image, get the bytes of the image 
+        image = bytes(image[0]['image'])
+        ### Convert the bytes to an image and then send them as a response
+        return send_file(BytesIO(image), as_attachment=False, mimetype='image/png')
+    else:
+        return({"message": f"Couldn't find image"}), 404
+
 @items_bp.route("/dateinfo/<int:id>")
 def get_dateInfo(id):
     item_controller = itemController()
