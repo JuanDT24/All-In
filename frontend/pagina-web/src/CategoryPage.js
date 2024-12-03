@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import categories from './categories';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import logo from './Logo.png';
@@ -8,12 +8,46 @@ function CategoryPage({
   selectedCategoryId,
   onLogoClick,
   onProductSelect,
-  products,
 }) {
   const [searchTerm, setSearchTerm] = useState('');
+  const [products, setProducts] = useState([]); // Almacena los productos obtenidos
+  const [loading, setLoading] = useState(true); // Estado para la carga
+  const [error, setError] = useState(null); // Estado para errores
 
   const category = categories.find((cat) => cat.id === selectedCategoryId);
-
+  
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`http://localhost:5000/api/items/get-items-category/${selectedCategoryId}`);
+        if (!response.ok) throw new Error('Error al cargar los productos.');
+        
+        const data = await response.json();
+        
+        
+        const adaptedProducts = data.map(product => ({
+          id: product.iditem,          
+          name: product.name,          
+          categoryId: product.idcategory, 
+          BidPrice: product.price,
+          instantBuyPrice: product.immediatepurchaseprice,
+          auctionEndDate: product.duedate,
+          minBidIncrement: product.minimumincrease,
+          image: `http://localhost:5000/api/items/get-item-image/${product.iditem}`
+        }));
+        
+        setProducts(adaptedProducts);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    fetchProducts();
+  }, [selectedCategoryId]);
+  
   const categoryProducts = products.filter(
     (product) => product.categoryId === selectedCategoryId
   );
@@ -149,7 +183,7 @@ function CategoryPage({
                           fontWeight: 600 
                         }}
                       >
-                        <strong>Precio:</strong> ${product.instantBuyPrice}
+                        <strong>Precio:</strong> ${product.BidPrice}
                       </span>
                       <button
                         onClick={() => onProductSelect(product)}

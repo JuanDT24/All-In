@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import logo from './Logo.png';
 
@@ -12,6 +12,8 @@ function ProductPage({ userName, product, onLogoClick, onBack, onPurchase }) {
     expiryDate: '',
     cvv: '',
   });
+
+
   const [savedCards, setSavedCards] = useState([]);
 
   const handleBuyClick = () => setShowPurchaseModal(true);
@@ -193,7 +195,7 @@ function ProductPage({ userName, product, onLogoClick, onBack, onPurchase }) {
                   <div className="row">
                     <div className="col-6">
                       <small className="text-muted">Precio de Subasta</small>
-                      <h4 className="mb-0">{formatCurrency(product.auctionPrice)}</h4>
+                      <h4 className="mb-0">{formatCurrency(product.BidPrice)}</h4>
                     </div>
                     <div className="col-6">
                       <small className="text-muted">Compra Inmediata</small>
