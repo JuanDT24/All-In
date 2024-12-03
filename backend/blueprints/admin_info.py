@@ -1,11 +1,11 @@
 from flask import Blueprint, request, jsonify
-from controllers.AdminController import adminController
+from controllers.AdminController import AdminController
 
 admin_bp = Blueprint("admin", __name__, url_prefix="/api/admin")
 
 @admin_bp.route("/<id>", methods = ["POST"])
 def update_price(id):
-    admin_controller = adminController()
+    admin_controller = AdminController()
     try:
         admin_controller.updateItemPrice(id)
         return jsonify({"message" : "Precio actualizado correctamente"}), 200

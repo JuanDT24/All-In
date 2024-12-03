@@ -12,8 +12,7 @@ class PayMethodController():
 
     def createPayMethod(self, FullName:str, ID:str, CardNumber:str, Bank:str, CVC:str, ExpirationDate:str, IdUser:int):
         self._contador_id = client.query("Select max(idpaym) from paymethods")[0]['max'] + 1
-        client.query(f"INSERT into paymethods (idpaym, fullname, id, cardnumber, bank, cvc, expirationdate, iduser)
-        VALUES ({self._contador_id}, '{FullName}', '{ID}', '{CardNumber}', '{Bank}', '{CVC}', '{ExpirationDate}', {IdUser})")
+        client.query(f"INSERT into paymethods (idpaym, fullname, id, cardnumber, bank, cvc, expirationdate, iduser) VALUES ({self._contador_id}, '{FullName}', '{ID}', '{CardNumber}', '{Bank}', '{CVC}', '{ExpirationDate}', {IdUser})")
 
     def deletePayMethod(self, id): 
         client.query(f"Delete from paymethods where idpaym = {id}")

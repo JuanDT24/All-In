@@ -32,3 +32,13 @@ class UserController():
             return True
         else: 
             return False
+        
+    def editUser(self, email, data):
+        if 'email' in data:
+            raise ValueError("No se puede modificar el email")
+        query = f"Update users set "
+        for key in data:
+            query += f"{key} = '{data[key]}', "
+        query = query[:-2]
+        query += f" where email = '{email}'"
+        client.query(query)
