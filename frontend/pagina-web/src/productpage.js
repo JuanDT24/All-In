@@ -1,29 +1,24 @@
-// ProductPage.js
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import logo from './Logo.png';
 
-function ProductPage({
-  userName,
-  product,
-  onLogoClick,
-  onBack,
-  onPurchase, // Función para manejar la compra
-  onBid,      // Función para manejar la puja (oferta)
-}) {
+function ProductPage({ userName, product, onLogoClick, onBack, onPurchase }) {
   const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [showBidModal, setShowBidModal] = useState(false);
+  const [bidAmount, setBidAmount] = useState('');
   const [cardInfo, setCardInfo] = useState({
     cardNumber: '',
     cardName: '',
     expiryDate: '',
     cvv: '',
   });
-  const [bidAmount, setBidAmount] = useState('');
+  const [savedCards, setSavedCards] = useState([]);
 
-  // Funciones para manejar la apertura y cierre de los modales
-  const handleBuyClick = () => {
-    setShowPurchaseModal(true);
+  const handleBuyClick = () => setShowPurchaseModal(true);
+
+  const handleBidClick = () => {
+    setBidAmount(''); // Restablecer monto de oferta al abrir el modal
+    setShowBidModal(true);
   };
 
   const handlePurchaseModalClose = () => {
@@ -36,27 +31,24 @@ function ProductPage({
     });
   };
 
-  const handleBidClick = () => {
-    setShowBidModal(true);
-  };
-
   const handleBidModalClose = () => {
     setShowBidModal(false);
     setBidAmount('');
   };
 
-  // Maneja los cambios en los inputs del modal de compra
   const handleCardInfoChange = (e) => {
     const { name, value } = e.target;
     setCardInfo({ ...cardInfo, [name]: value });
   };
 
-  // Maneja la compra
-  const handlePurchase = () => {
-    // Aquí puedes integrar la lógica para procesar la compra
-    onPurchase(product);
-    alert('Compra realizada exitosamente');
-    setShowPurchaseModal(false);
+  const handleSaveCard = () => {
+    if (!cardInfo.cardNumber || !cardInfo.cardName || !cardInfo.expiryDate || !cardInfo.cvv) {
+      alert('Por favor, completa toda la información de la tarjeta.');
+      return;
+    }
+
+    setSavedCards([...savedCards, { ...cardInfo }]);
+    alert('Tarjeta registrada exitosamente.');
     setCardInfo({
       cardNumber: '',
       cardName: '',
@@ -65,127 +57,173 @@ function ProductPage({
     });
   };
 
-  // Maneja los cambios en el input de la oferta
-  const handleBidAmountChange = (e) => {
-    setBidAmount(e.target.value);
+  const handlePurchase = () => {
+    if (!cardInfo.cardNumber || !cardInfo.cardName || !cardInfo.expiryDate || !cardInfo.cvv) {
+      alert('Por favor, completa toda la información de la tarjeta.');
+      return;
+    }
+
+    if (onPurchase) {
+      onPurchase(product);
+      alert(`Compra exitosa del producto: ${product.name} por ${formatCurrency(product.instantBuyPrice)}`);
+    }
+
+    setShowPurchaseModal(false);
   };
 
-  // Maneja la oferta
   const handleBidSubmit = () => {
-    const bidValue = parseFloat(bidAmount);
-    const minBid = parseFloat(product.auctionPrice) + parseFloat(product.minBidIncrement);
+    const minimumBid = parseFloat(product.auctionPrice) + parseFloat(product.minBidIncrement);
+    const enteredBid = parseFloat(bidAmount);
 
-    if (isNaN(bidValue)) {
-      alert('Por favor, ingresa un valor válido para la oferta.');
+    if (isNaN(enteredBid)) {
+      alert('Por favor, ingresa un valor numérico válido.');
       return;
     }
 
-    if (bidValue < minBid) {
-      alert(`La oferta mínima es de $${minBid}.`);
+    if (enteredBid < minimumBid) {
+      alert(`Tu oferta debe ser al menos ${formatCurrency(minimumBid)}.`);
       return;
     }
 
-    // Aquí puedes integrar la lógica para procesar la oferta
-    onBid(product.id, bidValue);
-    alert('Oferta realizada exitosamente');
+    alert(`Tu oferta de ${formatCurrency(enteredBid)} ha sido registrada para el producto: ${product.name}`);
     setShowBidModal(false);
-    setBidAmount('');
+  };
+
+  const formatCurrency = (value) => {
+    return new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(value);
   };
 
   return (
     <div
       style={{
-        fontFamily: "'Poppins', sans-serif",
-        backgroundColor: '#f0f2f5',
+        fontFamily: "'Inter', sans-serif",
+        backgroundColor: '#f4f6f9',
         minHeight: '100vh',
+        color: '#2c3e50',
       }}
     >
       {/* Barra de navegación */}
       <nav
-        className="navbar navbar-expand-lg navbar-dark"
-        style={{ backgroundColor: '#001f3f' }}
+        className="navbar navbar-expand-lg"
+        style={{
+          backgroundColor: '#ffffff',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          borderBottom: '1px solid #e9ecef',
+        }}
       >
         <div className="container">
           <button
             className="navbar-brand btn btn-link p-0 m-0 d-flex align-items-center"
             onClick={onLogoClick}
-            style={{ textDecoration: 'none', color: 'white' }}
+            style={{
+              textDecoration: 'none',
+              color: '#2c3e50',
+              fontWeight: 700,
+            }}
           >
             <img
               src={logo}
               alt="Logo"
-              style={{ width: '40px', height: '40px', marginRight: '10px' }}
+              style={{
+                width: '45px',
+                height: '45px',
+                marginRight: '15px',
+                borderRadius: '50%',
+              }}
             />
             All In
           </button>
           <div className="collapse navbar-collapse justify-content-end">
-            <span className="navbar-text me-3">Bienvenido, {userName}</span>
+            <span className="navbar-text">Bienvenido, {userName}</span>
           </div>
         </div>
       </nav>
 
       {/* Contenido principal */}
-      <div className="container mt-4">
-        <button className="btn btn-secondary mb-3" onClick={onBack}>
+      <div className="container py-5">
+        <button className="btn btn-outline-secondary mb-4" onClick={onBack}>
           &larr; Volver
         </button>
 
-        <div className="card mb-4 shadow-sm">
+        <div
+          className="card border-0 shadow-lg"
+          style={{
+            borderRadius: '20px',
+            overflow: 'hidden',
+          }}
+        >
           <div className="row g-0">
             {/* Imagen del producto */}
             <div className="col-md-6">
               <img
                 src={product.image}
                 alt={product.name}
-                className="img-fluid rounded-start"
-                style={{ maxHeight: '500px', objectFit: 'cover', width: '100%' }}
+                style={{
+                  width: '100%',
+                  height: '500px',
+                  objectFit: 'cover',
+                  filter: 'brightness(0.9)',
+                }}
               />
             </div>
+
             {/* Detalles del producto */}
-            <div className="col-md-6">
-              <div className="card-body">
-                <h2 className="card-title mb-3">{product.name}</h2>
-                <p className="card-text">{product.description}</p>
+            <div className="col-md-6 bg-white">
+              <div className="p-5">
+                <h2
+                  className="mb-3"
+                  style={{
+                    fontWeight: 700,
+                    color: '#2c3e50',
+                  }}
+                >
+                  {product.name}
+                </h2>
+                <p className="text-muted mb-4" style={{ lineHeight: 1.6 }}>
+                  {product.description}
+                </p>
 
-                <ul className="list-group list-group-flush mb-3">
-                  <li className="list-group-item">
-                    <strong>Precio:</strong> ${product.price}
-                  </li>
-                  <li className="list-group-item">
-                    <strong>Precio de Subasta:</strong> ${product.auctionPrice}
-                  </li>
-                  <li className="list-group-item">
-                    <strong>Precio de Compra Inmediata:</strong> ${product.instantBuyPrice}
-                  </li>
-                  <li className="list-group-item">
-                    <strong>Mínimo para la Puja:</strong> ${product.minBidIncrement}
-                  </li>
-                  <li className="list-group-item">
-                    <strong>Fecha de Inicio de la Subasta:</strong>{' '}
-                    {new Date(product.auctionStartDate).toLocaleString()}
-                  </li>
-                  <li className="list-group-item">
-                    <strong>Fecha de Terminación de la Subasta:</strong>{' '}
-                    {new Date(product.auctionEndDate).toLocaleString()}
-                  </li>
-                </ul>
+                <div
+                  className="bg-light p-4 rounded mb-4"
+                  style={{
+                    backgroundColor: '#f8f9fa',
+                    border: '1px solid #e9ecef',
+                  }}
+                >
+                  <div className="row">
+                    <div className="col-6">
+                      <small className="text-muted">Precio de Subasta</small>
+                      <h4 className="mb-0">{formatCurrency(product.auctionPrice)}</h4>
+                    </div>
+                    <div className="col-6">
+                      <small className="text-muted">Compra Inmediata</small>
+                      <h4 className="mb-0">{formatCurrency(product.instantBuyPrice)}</h4>
+                    </div>
+                    <div className="col-6 mt-3">
+                      <small className="text-muted">Fecha de Término</small>
+                      <h5 className="mb-0">{new Date(product.auctionEndDate).toLocaleString()}</h5>
+                    </div>
+                    <div className="col-6 mt-3">
+                      <small className="text-muted">Mínimo de Puja</small>
+                      <h5 className="mb-0">{formatCurrency(product.minBidIncrement)}</h5>
+                    </div>
+                  </div>
+                </div>
 
-                <div className="d-flex justify-content-between mt-4">
+                <div className="d-grid gap-3">
                   <button
-                    className="btn btn-primary"
+                    className="btn btn-primary btn-lg"
                     onClick={handleBuyClick}
-                    style={{ backgroundColor: '#001f3f', borderColor: '#001f3f' }}
+                    style={{
+                      backgroundColor: '#3498db',
+                      borderColor: '#3498db',
+                    }}
                   >
-                    Comprar
+                    Comprar Ahora
                   </button>
                   <button
-                    className="btn btn-warning"
+                    className="btn btn-outline-warning btn-lg"
                     onClick={handleBidClick}
-                    style={{
-                      backgroundColor: '#FFC107',
-                      borderColor: '#FFC107',
-                      color: 'black',
-                    }}
                   >
                     Hacer Oferta
                   </button>
@@ -196,7 +234,7 @@ function ProductPage({
         </div>
       </div>
 
-      {/* Modal de Compra */}
+      {/* Modal de compra */}
       {showPurchaseModal && (
         <div
           className="modal show fade d-block"
@@ -206,7 +244,7 @@ function ProductPage({
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">Información de Pago</h5>
+                <h5 className="modal-title">Confirmar Compra</h5>
                 <button
                   type="button"
                   className="btn-close"
@@ -215,7 +253,6 @@ function ProductPage({
               </div>
               <div className="modal-body">
                 <form>
-                  {/* Campos de tarjeta */}
                   <div className="mb-3">
                     <label htmlFor="cardNumber" className="form-label">
                       Número de Tarjeta
@@ -227,7 +264,6 @@ function ProductPage({
                       name="cardNumber"
                       value={cardInfo.cardNumber}
                       onChange={handleCardInfoChange}
-                      placeholder="1234 5678 9012 3456"
                     />
                   </div>
                   <div className="mb-3">
@@ -241,7 +277,6 @@ function ProductPage({
                       name="cardName"
                       value={cardInfo.cardName}
                       onChange={handleCardInfoChange}
-                      placeholder="Juan Pérez"
                     />
                   </div>
                   <div className="mb-3">
@@ -249,11 +284,10 @@ function ProductPage({
                       Fecha de Expiración
                     </label>
                     <input
-                      type="text"
+                      type="month"
                       className="form-control"
                       id="expiryDate"
                       name="expiryDate"
-                      placeholder="MM/AA"
                       value={cardInfo.expiryDate}
                       onChange={handleCardInfoChange}
                     />
@@ -269,10 +303,16 @@ function ProductPage({
                       name="cvv"
                       value={cardInfo.cvv}
                       onChange={handleCardInfoChange}
-                      placeholder="123"
                     />
                   </div>
                 </form>
+                <button
+                  className="btn btn-success"
+                  onClick={handleSaveCard}
+                  style={{ marginTop: '10px' }}
+                >
+                  Guardar Tarjeta
+                </button>
               </div>
               <div className="modal-footer">
                 <button
@@ -281,12 +321,8 @@ function ProductPage({
                 >
                   Cancelar
                 </button>
-                <button
-                  className="btn btn-primary"
-                  onClick={handlePurchase}
-                  style={{ backgroundColor: '#001f3f', borderColor: '#001f3f' }}
-                >
-                  Pagar
+                <button className="btn btn-primary" onClick={handlePurchase}>
+                  Confirmar Compra
                 </button>
               </div>
             </div>
@@ -294,7 +330,7 @@ function ProductPage({
         </div>
       )}
 
-      {/* Modal de Oferta */}
+      {/* Modal de oferta */}
       {showBidModal && (
         <div
           className="modal show fade d-block"
@@ -304,7 +340,7 @@ function ProductPage({
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">Realizar Oferta</h5>
+                <h5 className="modal-title">Hacer Oferta</h5>
                 <button
                   type="button"
                   className="btn-close"
@@ -313,7 +349,6 @@ function ProductPage({
               </div>
               <div className="modal-body">
                 <form>
-                  {/* Campo de oferta */}
                   <div className="mb-3">
                     <label htmlFor="bidAmount" className="form-label">
                       Monto de la Oferta
@@ -322,12 +357,17 @@ function ProductPage({
                       type="number"
                       className="form-control"
                       id="bidAmount"
-                      name="bidAmount"
-                      placeholder={`$${parseFloat(product.auctionPrice) } mínimo`}
                       value={bidAmount}
-                      onChange={handleBidAmountChange}
-                      min={parseFloat(product.auctionPrice) + parseFloat(product.minBidIncrement)}
+                      onChange={(e) => setBidAmount(e.target.value)}
                     />
+                    <small className="form-text text-muted">
+                      El monto mínimo para pujar es{' '}
+                      {formatCurrency(
+                        parseFloat(product.auctionPrice) +
+                          parseFloat(product.minBidIncrement)
+                      )}
+                      .
+                    </small>
                   </div>
                 </form>
               </div>
@@ -338,16 +378,8 @@ function ProductPage({
                 >
                   Cancelar
                 </button>
-                <button
-                  className="btn btn-warning"
-                  onClick={handleBidSubmit}
-                  style={{
-                    backgroundColor: '#FFC107',
-                    borderColor: '#FFC107',
-                    color: 'black',
-                  }}
-                >
-                  Hacer Oferta
+                <button className="btn btn-primary" onClick={handleBidSubmit}>
+                  Confirmar Oferta
                 </button>
               </div>
             </div>
