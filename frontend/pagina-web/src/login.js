@@ -1,7 +1,7 @@
 // login.js
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import logo from './Logo.png'; // Asegúrate de que la ruta es correcta
+import logo from './Logo.png';
 
 function Login({ onLogin }) {
   const [isRegistering, setIsRegistering] = useState(false); // Alterna entre login y registro
@@ -26,7 +26,7 @@ function Login({ onLogin }) {
     if (isRegistering) {
       // Validación básica antes de enviar
       if (formData.password !== formData.confirmPassword) {
-        alert("Las contraseñas no coinciden.");
+        alert('Las contraseñas no coinciden.');
         return;
       }
       const requestData = {
@@ -38,7 +38,6 @@ function Login({ onLogin }) {
         Address: formData.address,
       };
 
-      console.log("JSON que se enviará:", requestData); // Inspeccionar el JSON antes de enviarlo
       try {
         const response = await fetch('http://localhost:5000/api/users', {
           method: 'POST',
@@ -49,7 +48,6 @@ function Login({ onLogin }) {
         });
 
         const data = await response.json();
-        console.log("Respuesta del servidor:", data);
         if (response.ok) {
           alert('Usuario registrado exitosamente');
           setIsRegistering(false); // Cambia al modo de login después de registrar
@@ -65,11 +63,10 @@ function Login({ onLogin }) {
         const response = await fetch(`http://localhost:5000/api/users/${formData.email}`);
         if (response.ok) {
           const data = await response.json();
-          console.log("Datos recibidos:", data);
           // Verifica si data es un array y tiene al menos un elemento
           if (data.length > 0 && data[0].password === formData.password) {
             alert('Inicio de sesión exitoso');
-            onLogin(formData.email); // Pasamos el email al componente padre
+            onLogin(data[0]); // Pasamos todos los datos del usuario al componente padre
           } else {
             alert('Contraseña incorrecta');
           }
@@ -276,7 +273,7 @@ function Login({ onLogin }) {
             }}
             onClick={handleSubmit}
           >
-            {isRegistering ? 'Registrar' : 'Login'}
+            {isRegistering ? 'Registrar' : 'Iniciar Sesión'}
           </button>
         </form>
         <p className="text-center mt-3">

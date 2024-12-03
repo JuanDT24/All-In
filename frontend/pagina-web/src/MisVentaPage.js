@@ -1,6 +1,8 @@
+// MisVentaPage.js
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import logo from './Logo.png';
+import { MdArrowBack } from 'react-icons/md';
 
 function MisVentasPage({ userName, onLogoClick, misVentas }) {
   return (
@@ -12,7 +14,6 @@ function MisVentasPage({ userName, onLogoClick, misVentas }) {
         color: '#2c3e50',
       }}
     >
-      {/* Barra de navegación */}
       <nav
         className="navbar navbar-expand-lg"
         style={{
@@ -47,11 +48,22 @@ function MisVentasPage({ userName, onLogoClick, misVentas }) {
             <span className="navbar-text me-3">
               Bienvenido, {userName}
             </span>
+            <button 
+              className="btn btn-outline-primary"
+              onClick={onLogoClick}
+              style={{
+                borderColor: '#3498db',
+                color: '#3498db',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              <MdArrowBack className="me-2" />
+              Volver
+            </button>
           </div>
         </div>
       </nav>
 
-      {/* Contenido Principal */}
       <div className="container py-5">
         <h2 className="mb-5 text-center" style={{ fontWeight: 700 }}>
           Mis Ventas
@@ -61,7 +73,7 @@ function MisVentasPage({ userName, onLogoClick, misVentas }) {
             {misVentas.map((venta) => (
               <div className="col-md-4" key={venta.id}>
                 <div
-                  className="card border-0 h-100 shadow-sm"
+                  className="card border-0 h-100 shadow-sm transform-on-hover"
                   style={{
                     borderRadius: '15px',
                     overflow: 'hidden',
@@ -101,6 +113,19 @@ function MisVentasPage({ userName, onLogoClick, misVentas }) {
                     <p className="text-muted mb-4">
                       Subastado el: {new Date(venta.auctionEndDate).toLocaleDateString()}
                     </p>
+                    <div className="d-flex justify-content-center gap-2">
+                      <span 
+                        className="badge"
+                        style={{
+                          backgroundColor: '#e8f5e9',
+                          color: '#2e7d32',
+                          padding: '8px 16px',
+                          fontSize: '0.9rem'
+                        }}
+                      >
+                        Venta publicada
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -108,22 +133,38 @@ function MisVentasPage({ userName, onLogoClick, misVentas }) {
           </div>
         ) : (
           <div
-            className="alert alert-light text-center"
+            className="alert alert-light text-center p-5"
             role="alert"
             style={{
               fontSize: '1.2rem',
               fontWeight: 500,
               color: '#2c3e50',
+              backgroundColor: '#ffffff',
+              borderRadius: '15px',
+              boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
             }}
           >
-            No has realizado ventas.
+            No has realizado ventas todavía.
           </div>
         )}
       </div>
 
       <style>{`
+        .transform-on-hover {
+          transition: transform 0.3s ease;
+        }
         .transform-on-hover:hover {
-          transform: scale(1.05);
+          transform: translateY(-5px);
+        }
+        .card-img-top {
+          transition: filter 0.3s ease;
+        }
+        .card:hover .card-img-top {
+          filter: brightness(1);
+        }
+        .btn-outline-primary:hover {
+          background-color: #3498db;
+          color: white;
         }
       `}</style>
     </div>
