@@ -49,7 +49,7 @@ function MisComprasPage({ userName, onLogoClick, misCompras }) {
                   />
                   <div className="card-body">
                     <h5 className="card-title">{compra.name}</h5>
-                    <p className="card-text">Precio: {compra.price}</p>
+                    <p className="card-text">Precio: {compra.instantBuyPrice}</p>
                     {/* Otros detalles */}
                   </div>
                 </div>
