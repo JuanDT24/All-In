@@ -10,6 +10,7 @@ class itemController():
         if cls._instance is None:
             cls._instance = super(itemController, cls).__new__(cls)
         return cls._instance
+        
     def createItem(self, name, description, idSeller, currentPrice, startingPrice, inmediate_Purchase_Price, minimum_Increase, post_Date, start_Date, due_Date, idcategory, image):
         _contador_id = client.query("Select max(iditem) from items")[0]['max'] + 1
         image = psycopg2.Binary(image)

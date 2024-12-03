@@ -1,6 +1,6 @@
 from database_controller import client
-from ItemController import ItemController
-from BidController import BidController
+from controllers.itemController import itemController
+from controllers.BidController import BidController
 
 
 class AdminController():
@@ -20,5 +20,5 @@ class AdminController():
     
     def updateItemPrice(self, idItem):
         bid_controller = BidController()
-        item_controller = ItemController()
+        item_controller = itemController()
         item_controller.changePrice(idItem, bid_controller.getMaxBidbyItem(idItem))
