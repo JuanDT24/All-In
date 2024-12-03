@@ -27,7 +27,7 @@ class itemController():
         else: 
             return {"message":f"Couldn't find item with id: {id}"}
     def getItems_per_category(self, idcategory):
-        result = client.query(f"Select i.iditem, i.name, i.idcategory, ip.price, ip.immediatepurchaseprice, ip.minimumincrease, itd.duedate from items i  join itempricesettings ip on i.iditem = ip.iditem  join itemdate itd on i.iditem = itd.iditem where idcategory = {idcategory}")
+        result = client.query(f"Select i.iditem, i.name, i.description, i.idcategory, ip.price, ip.immediatepurchaseprice, ip.minimumincrease, itd.duedate from items i  join itempricesettings ip on i.iditem = ip.iditem  join itemdate itd on i.iditem = itd.iditem where idcategory = {idcategory}")
         if result:
             return result
         else:

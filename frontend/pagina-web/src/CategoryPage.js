@@ -30,6 +30,7 @@ function CategoryPage({
           id: product.iditem,          
           name: product.name,          
           categoryId: product.idcategory, 
+          description: product.description,
           BidPrice: product.price,
           instantBuyPrice: product.immediatepurchaseprice,
           auctionEndDate: product.duedate,
