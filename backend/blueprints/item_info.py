@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify, send_file
-from controllers.ItemController import itemController
+from controllers.itemController import itemController
 from io import BytesIO
 
 items_bp = Blueprint("items", __name__, url_prefix="/api/items")

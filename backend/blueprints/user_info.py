@@ -38,9 +38,7 @@ def search_user(email):
         except Exception as e:
             return jsonify({"error": "Error interno del servidor"}), 500
 
-<<<<<<< HEAD
 
-=======
 @users_bp.route("/<email>", methods = ["PUT"])
 def edit_user(email):
     user_controller = UserController()
@@ -52,4 +50,3 @@ def edit_user(email):
         return jsonify({"error": str(e)}), 400
     except Exception as e:
         return jsonify({"error": "Error interno del servidor"}), 500
->>>>>>> 1a7efd2bcbad8e8585fcf3d0fcd917e7284daeab
