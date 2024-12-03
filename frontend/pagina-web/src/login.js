@@ -63,14 +63,23 @@ function Login({ onLogin }) {
     } else {
       try {
         const response = await fetch(`http://localhost:5000/api/users/${formData.email}`);
-        const data = await response.json();
         if (response.ok) {
-          if (data.password === formData.password.value) {
+          const data = await response.json();
+          console.log("Datos recibidos:", data);
+          // Verifica si data es un array y tiene al menos un elemento
+          if (data.length > 0 && data[0].password === formData.password) {
             alert('Inicio de sesión exitoso');
             onLogin(formData.email); // Pasamos el email al componente padre
           } else {
-            alert(`Error: ${data.message || 'Credenciales incorrectas'}`);
+            alert('Contraseña incorrecta');
           }
+        } else if (response.status === 404) {
+          // Usuario no encontrado
+          alert('Usuario no encontrado. Por favor, regístrese.');
+        } else {
+          // Otro error
+          const data = await response.json();
+          alert(`Error: ${data.message || 'Error al iniciar sesión'}`);
         }
       } catch (error) {
         console.error('Error:', error);
