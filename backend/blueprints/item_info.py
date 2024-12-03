@@ -1,6 +1,7 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, send_file
 from controllers.itemController import itemController
-from werkzeug.utils import secure_filename
+from io import BytesIO
+
 items_bp = Blueprint("items", __name__, url_prefix="/api/items")
 
 @items_bp.route("/", methods = ["POST"])
@@ -22,4 +23,51 @@ def create_item():
         return jsonify({"error": str(e)}), 400  
     except Exception as e:
         return jsonify({"error": "Error interno del servidor"}, {"message": str(e)}), 500
+@items_bp.route("/<int:id>", methods = ["GET", "DELETE"])
+def item_handler(id):
+    item_controller = itemController()
+    if request.method == 'GET':   
+        item=item_controller.getItem(id)
+        if(item):
+            print(item)
+            del item[0]['image']
+            return jsonify(item)
+        else:
+            return ({"message": "Usuario no encontrado"}), 404
+    elif request.method == 'DELETE':
+        try:
+            item_controller.deleteUser(id)
+            return jsonify({"message": "Item eliminado exitosamente"}), 200
+        except ValueError as e:
+            return jsonify({"error": str(e)}), 400
+@items_bp.route("/get-item-image/<int:id>")
+def get_image(id):
+    item_controller = itemController()
+    ## Get image with get_image_with_id method
+    image = item_controller.get_image_with_id(id)
+    if image:
+        ## if there is an image, get the bytes of the image 
+        image = bytes(image[0]['image'])
+        ### Convert the bytes to an image and then send them as a response
+        return send_file(BytesIO(image), as_attachment=False, mimetype='image/png')
+    else:
+        return({"message": f"Couldn't find image"}), 404
+
+@items_bp.route("/dateinfo/<int:id>")
+def get_dateInfo(id):
+    item_controller = itemController()
+    info = item_controller.getDateInfo(id)
+    if(info):
+        return jsonify(info)
+    else:
+        return ({"message": f"Couldn't find date information for item with id: {id}"}), 404
+@items_bp.route("/priceinfo/<int:id>")
+def get_priceInfo(id):
+    item_controller = itemController()
+    info = item_controller.getPriceInfo(id)
+    if(info):
+        return jsonify(info)
+    else:
+        return jsonify({"message":f"Couldn't find price information for item with id: {id}"}), 404
+    
     
