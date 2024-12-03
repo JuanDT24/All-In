@@ -1,9 +1,17 @@
+// MainPage.js
 import React from 'react';
 import categories from './categories';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import logo from './Logo.png';
 
-function MainPage({ userName, onCategorySelect, onLogoClick, onSellClick }) {
+function MainPage({
+  userName,
+  onCategorySelect,
+  onLogoClick,
+  onSellClick,
+  onLogoutClick,
+  onProfileClick,
+}) {
   return (
     <div
       style={{
@@ -29,15 +37,62 @@ function MainPage({ userName, onCategorySelect, onLogoClick, onSellClick }) {
             />
             All In
           </button>
-          <div className="collapse navbar-collapse">
-            <span className="navbar-text ms-auto">Bienvenido, {userName}</span>
+          <div className="collapse navbar-collapse justify-content-end">
+            <div className="dropdown me-3">
+              <button
+                className="btn btn-outline-light dropdown-toggle"
+                type="button"
+                id="profileMenu"
+                data-bs-toggle="dropdown"
+                aria-expanded="false"
+              >
+                {userName}
+              </button>
+              <ul
+                className="dropdown-menu dropdown-menu-end"
+                aria-labelledby="profileMenu"
+              >
+                <li>
+                  <button
+                    className="dropdown-item"
+                    onClick={() => onProfileClick('perfil')}
+                  >
+                    Perfil
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className="dropdown-item"
+                    onClick={() => onProfileClick('compras')}
+                  >
+                    Mis Compras
+                  </button>
+                </li>
+                <li>
+                  <button
+                    className="dropdown-item"
+                    onClick={() => onProfileClick('ventas')}
+                  >
+                    Mis Ventas
+                  </button>
+                </li>
+                <li>
+                  <hr className="dropdown-divider" />
+                </li>
+                <li>
+                  <button className="dropdown-item" onClick={onLogoutClick}>
+                    Cerrar sesión
+                  </button>
+                </li>
+              </ul>
+            </div>
+            <button
+              className="btn btn-outline-light me-2"
+              onClick={onSellClick}
+            >
+              Subastar
+            </button>
           </div>
-          <button
-            className="btn btn-outline-light ms-3"
-            onClick={onSellClick} // Llamar a la función para subastar
-          >
-            Subastar
-          </button>
         </div>
       </nav>
 
