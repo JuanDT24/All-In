@@ -390,26 +390,20 @@ function ProductPage({ userEmail, userName, product, onLogoClick, onBack, onPurc
                 {savedCards.length > 0 ? (
                   <div className="saved-cards-container">
                     {savedCards.map((card) => (
-                      <div
-                        key={card.idpay_method}
-                        className={`card-option ${
-                          selectedCard?.idpay_method === card.idpay_method ? 'selected' : ''
-                        }`}
-                        onClick={() => setSelectedCard(card)}
-                      >
+                      <div key={card.idpaym} className={`card-option ${selectedCard?.idpay_method === card.idpay_method ? 'selected' : ''}`} onClick={() => setSelectedCard(card)}>
                         <div className="card-badge">
                           <MdCreditCard size={24} />
                         </div>
                         <div className="card-info">
                           <div className="card-number">
-                            {card.CardNumber}
+                            {card.cardnumber}
                           </div>
-                          <div className="card-name">{card.FullName}</div>
+                          <div className="card-name">{card.fullname}</div>
                         </div>
                         <input
                           type="radio"
                           className="card-radio"
-                          checked={selectedCard?.idpay_method === card.idpay_method}
+                          checked={selectedCard?.idpaym === card.idpaym}
                           onChange={() => setSelectedCard(card)}
                         />
                       </div>

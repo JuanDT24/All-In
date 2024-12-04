@@ -26,7 +26,6 @@ function MisComprasPage({userEmail, userName, onLogoClick}) {
         
         setPurchases(adaptedProducts);
       } catch (err) {
-        alert('Error')
       }
     };
   
