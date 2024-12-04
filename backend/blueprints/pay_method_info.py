@@ -10,12 +10,12 @@ def create_pay_method():
         data = request.get_json()
         if not all(key in data for key in ['FullName', 'ID', 'CardNumber', 'CVC', 'ExpirationDate', 'IdUser']):
             return jsonify({"error": "Faltan parámetros en la solicitud"}), 400
-        pay_method_controller.createPayMethod(data['FullName'], data['ID'], data['CardNumber'], data['CVC'], data['ExpirationDate'], data['IdUser'])
+        pay_method_controller.createPayMethod(data['FullName'], data['ID'], data['CardNumber'], data['Bank'], data['CVC'], data['ExpirationDate'], data['IdUser'])
         return jsonify({"message": "Método de pago añadido correctamente"}), 201
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
     except Exception as e:
-        return jsonify({"error": "Error interno del servidor"}), 500
+        return jsonify({"error": "Error interno del servidor"}, {"message": str(e)}), 500
 
 @pay_method_bp.route("/<id>", methods = ["GET", "DELETE"])
 def search_pay_method(id):
@@ -34,12 +34,12 @@ def search_pay_method(id):
             return jsonify({"error": str(e)}), 400
         except Exception as e:
             return jsonify({"error": "Error interno del servidor"}), 500
-
-@pay_method_bp.route("/user/<id>", methods = ["GET"])
-def search_pay_methods_byuser(id):
+    
+@pay_method_bp.route("/user/<email>", methods = ["GET"])
+def search_pay_methods_byemail(email):
     pay_method_controller = PayMethodController()
-    pay_methods = pay_method_controller.getPayMethods_byuser(id)
+    pay_methods = pay_method_controller.getPayMethods_byemail(email)
     if(pay_methods):
-        return jsonify([pay_method.__dict__ for pay_method in pay_methods])
+        return jsonify(pay_methods)
     else:
         return jsonify({"message": "Métodos de pago no encontrados"}), 404

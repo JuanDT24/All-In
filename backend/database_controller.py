@@ -22,7 +22,7 @@ class DatabaseController:
             self.connection.close()
 
     def query(self, query_sql, params=None):
-        client.connect()
+        self.ensure_connection()
         try:
             with self.connection.cursor() as cursor:
                 cursor.execute(query_sql, params)
@@ -34,7 +34,11 @@ class DatabaseController:
             print(f"Error executing query: {e}")
             raise
         finally:
-            client.close()
+            self.close()
 
+    def ensure_connection(self):
+        if self.connection.closed:
+            self.connect()
 ### Instancia única            
 client = DatabaseController()
+client.connect()

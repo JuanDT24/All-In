@@ -1,5 +1,4 @@
 from database_controller import client
-from controllers.itemController import itemController
 from controllers.BidController import BidController
 
 
@@ -17,9 +16,7 @@ class AdminController():
         if result:
             return result
         return None
-    
-    def updateItemPrice(self, idItem):
-        bid_controller = BidController()
-        item_controller = itemController()
-        item_controller.changePrice(idItem, bid_controller.getMaxBidbyItem(idItem))
 
+    def callmaxbid(self, idItem):
+        bid_controller = BidController()
+        bid_controller.getMaxBidbyItem(idItem, 1)
