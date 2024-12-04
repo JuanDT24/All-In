@@ -1,11 +1,9 @@
-// ProductPage.js
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import logo from './Logo.png';
-import { MdArrowBack } from 'react-icons/md';
 
-function ProductPage({ userName, product, onLogoClick, onBack, onPurchase }) {
-  const [showCardModal, setShowCardModal] = useState(false);
+function ProductPage({userEmail, userName, product, onLogoClick, onBack, onPurchase }) {
+  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
   const [showBidModal, setShowBidModal] = useState(false);
   const [bidAmount, setBidAmount] = useState('');
   const [cardInfo, setCardInfo] = useState({
@@ -14,17 +12,19 @@ function ProductPage({ userName, product, onLogoClick, onBack, onPurchase }) {
     expiryDate: '',
     cvv: '',
   });
+
+
   const [savedCards, setSavedCards] = useState([]);
 
-  const handleRegisterCardClick = () => setShowCardModal(true);
+  const handleBuyClick = () => setShowPurchaseModal(true);
 
   const handleBidClick = () => {
-    setBidAmount('');
+    setBidAmount(''); // Restablecer monto de oferta al abrir el modal
     setShowBidModal(true);
   };
 
-  const handleCardModalClose = () => {
-    setShowCardModal(false);
+  const handlePurchaseModalClose = () => {
+    setShowPurchaseModal(false);
     setCardInfo({
       cardNumber: '',
       cardName: '',
@@ -48,15 +48,34 @@ function ProductPage({ userName, product, onLogoClick, onBack, onPurchase }) {
       alert('Por favor, completa toda la información de la tarjeta.');
       return;
     }
+
     setSavedCards([...savedCards, { ...cardInfo }]);
     alert('Tarjeta registrada exitosamente.');
-    handleCardModalClose();
+    setCardInfo({
+      cardNumber: '',
+      cardName: '',
+      expiryDate: '',
+      cvv: '',
+    });
   };
 
-  const handleBidSubmit = () => {
+  const handlePurchase = () => {
+    if (!cardInfo.cardNumber || !cardInfo.cardName || !cardInfo.expiryDate || !cardInfo.cvv) {
+      alert('Por favor, completa toda la información de la tarjeta.');
+      return;
+    }
+
+    if (onPurchase) {
+      onPurchase(product);
+      alert(`Compra exitosa del producto: ${product.name} por ${formatCurrency(product.instantBuyPrice)}`);
+    }
+
+    setShowPurchaseModal(false);
+  };
+
+  const handleBidSubmit = async() => {
     const minimumBid = parseFloat(product.BidPrice) + parseFloat(product.minBidIncrement);
     const enteredBid = parseFloat(bidAmount);
-    const instantBuyPrice = parseFloat(product.instantBuyPrice);
 
     if (isNaN(enteredBid)) {
       alert('Por favor, ingresa un valor numérico válido.');
@@ -68,25 +87,44 @@ function ProductPage({ userName, product, onLogoClick, onBack, onPurchase }) {
       return;
     }
 
-    // Verificar si la oferta alcanza o supera el precio de compra inmediata
-    if (enteredBid >= instantBuyPrice) {
-      if (window.confirm(`Tu oferta alcanza el precio de compra inmediata (${formatCurrency(instantBuyPrice)}). ¿Deseas realizar la compra inmediata?`)) {
-        const purchaseData = {
-          ...product,
-          purchaseDate: new Date(),
-          purchasePrice: instantBuyPrice
-        };
-        
-        onPurchase(purchaseData);
-        alert(`¡Compra realizada exitosamente! Has adquirido ${product.name} por ${formatCurrency(instantBuyPrice)}`);
-        setShowBidModal(false);
-        onBack();
-        return;
+    const response = await fetch(`http://localhost:5000/api/users/${userEmail}`);
+    const dataUser = await response.json();
+
+    let ImmPur = false
+    if(enteredBid >= product.instantBuyPrice){
+      ImmPur = true
+    }
+
+    const bidData = {
+      IdItem: product.id,
+      IdBidder: dataUser[0].iduser,
+      Price: enteredBid,
+      BidDate: new Date().toISOString(),
+      ImmediatePurchase: ImmPur
+    };
+
+    try {
+      const response = await fetch('http://localhost:5000/api/bids/',{
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(bidData)
+      });
+      const data = await response.json();
+      if (!response.ok){
+        alert('Error al Pujar')
       }
+      alert('Puja Exitosa')
+      
+    } catch (error){
+      alert('Error al conectar con el servidor')
     }
 
     alert(`Tu oferta de ${formatCurrency(enteredBid)} ha sido registrada para el producto: ${product.name}`);
     setShowBidModal(false);
+
+
   };
 
   const formatCurrency = (value) => {
@@ -102,6 +140,7 @@ function ProductPage({ userName, product, onLogoClick, onBack, onPurchase }) {
         color: '#2c3e50',
       }}
     >
+      {/* Barra de navegación */}
       <nav
         className="navbar navbar-expand-lg"
         style={{
@@ -133,24 +172,17 @@ function ProductPage({ userName, product, onLogoClick, onBack, onPurchase }) {
             All In
           </button>
           <div className="collapse navbar-collapse justify-content-end">
-            <span className="navbar-text me-3">Bienvenido, {userName}</span>
-            <button 
-              className="btn btn-outline-primary"
-              onClick={onBack}
-              style={{
-                borderColor: '#3498db',
-                color: '#3498db',
-                transition: 'all 0.3s ease'
-              }}
-            >
-              <MdArrowBack className="me-2" />
-              Volver
-            </button>
+            <span className="navbar-text">Bienvenido, {userName}</span>
           </div>
         </div>
       </nav>
 
+      {/* Contenido principal */}
       <div className="container py-5">
+        <button className="btn btn-outline-secondary mb-4" onClick={onBack}>
+          &larr; Volver
+        </button>
+
         <div
           className="card border-0 shadow-lg"
           style={{
@@ -159,6 +191,7 @@ function ProductPage({ userName, product, onLogoClick, onBack, onPurchase }) {
           }}
         >
           <div className="row g-0">
+            {/* Imagen del producto */}
             <div className="col-md-6">
               <img
                 src={product.image}
@@ -172,6 +205,7 @@ function ProductPage({ userName, product, onLogoClick, onBack, onPurchase }) {
               />
             </div>
 
+            {/* Detalles del producto */}
             <div className="col-md-6 bg-white">
               <div className="p-5">
                 <h2
@@ -216,10 +250,14 @@ function ProductPage({ userName, product, onLogoClick, onBack, onPurchase }) {
 
                 <div className="d-grid gap-3">
                   <button
-                    className="btn btn-success btn-lg"
-                    onClick={handleRegisterCardClick}
+                    className="btn btn-primary btn-lg"
+                    onClick={handleBuyClick}
+                    style={{
+                      backgroundColor: '#3498db',
+                      borderColor: '#3498db',
+                    }}
                   >
-                    Registrar Tarjeta
+                    Comprar Ahora
                   </button>
                   <button
                     className="btn btn-outline-warning btn-lg"
@@ -234,7 +272,8 @@ function ProductPage({ userName, product, onLogoClick, onBack, onPurchase }) {
         </div>
       </div>
 
-      {showCardModal && (
+      {/* Modal de compra */}
+      {showPurchaseModal && (
         <div
           className="modal show fade d-block"
           tabIndex="-1"
@@ -243,11 +282,11 @@ function ProductPage({ userName, product, onLogoClick, onBack, onPurchase }) {
           <div className="modal-dialog modal-dialog-centered">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">Registrar Tarjeta</h5>
+                <h5 className="modal-title">Confirmar Compra</h5>
                 <button
                   type="button"
                   className="btn-close"
-                  onClick={handleCardModalClose}
+                  onClick={handlePurchaseModalClose}
                 ></button>
               </div>
               <div className="modal-body">
@@ -305,16 +344,23 @@ function ProductPage({ userName, product, onLogoClick, onBack, onPurchase }) {
                     />
                   </div>
                 </form>
+                <button
+                  className="btn btn-success"
+                  onClick={handleSaveCard}
+                  style={{ marginTop: '10px' }}
+                >
+                  Guardar Tarjeta
+                </button>
               </div>
               <div className="modal-footer">
                 <button
                   className="btn btn-secondary"
-                  onClick={handleCardModalClose}
+                  onClick={handlePurchaseModalClose}
                 >
                   Cancelar
                 </button>
-                <button className="btn btn-primary" onClick={handleSaveCard}>
-                  Guardar Tarjeta
+                <button className="btn btn-primary" onClick={handlePurchase}>
+                  Confirmar Compra
                 </button>
               </div>
             </div>
@@ -322,6 +368,7 @@ function ProductPage({ userName, product, onLogoClick, onBack, onPurchase }) {
         </div>
       )}
 
+      {/* Modal de oferta */}
       {showBidModal && (
         <div
           className="modal show fade d-block"

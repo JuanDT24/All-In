@@ -42,15 +42,3 @@ class UserController():
         query = query[:-2]
         query += f" where email = '{email}'"
         client.query(query)
-    def get_auctions_user(self, email):
-        result = client.query(f"Select i.name, i.iditem, ip.price, idt.startingdate from users u join items i on u.iduser = i.idseller join itempricesettings ip on ip.iditem = i.iditem join itemdate idt on idt.iditem = i.iditem where u.email = '{email}'")
-        if result:
-            return result
-        else:
-            return None 
-    def get_purchases_user(self, email):
-        result = client.query(f"Select i.name, i.iditem, ip.price, idt.startingdate from users u join items i on u.iduser = i.idbuyer join itempricesettings ip on ip.iditem = i.iditem join itemdate idt on idt.iditem = i.iditem where u.email = '{email}'")
-        if result:
-            return result
-        else:
-            return None 
