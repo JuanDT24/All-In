@@ -61,8 +61,8 @@ def get_auctions(email):
 @users_bp.route("/get_purchases_user/<string:email>")
 def get_purchases(email):
     user_controller = UserController()
-    purchases = user_controller.get_auctions_user(email)
-    if auctions:
+    purchases = user_controller.get_purchases_user(email)
+    if purchases:
         return jsonify(purchases)
     else:
         return jsonify({"message":f"Couldn't find purchases for this user"})

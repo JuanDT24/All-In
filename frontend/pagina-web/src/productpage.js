@@ -345,11 +345,7 @@ function ProductPage({ userEmail, userName, product, onLogoClick, onBack, onPurc
                       onChange={(e) => setBidAmount(e.target.value)}
                     />
                     <small className="form-text text-muted">
-                      El monto mínimo para pujar es{' '}
-                      {formatCurrency(
-                        parseFloat(product.BidPrice) + parseFloat(product.minBidIncrement)
-                      )}
-                      .
+                      El monto mínimo para pujar es {formatCurrency(parseFloat(product.BidPrice) + parseFloat(product.minBidIncrement))}.
                     </small>
                   </div>
                 </form>
@@ -406,7 +402,7 @@ function ProductPage({ userEmail, userName, product, onLogoClick, onBack, onPurc
                         </div>
                         <div className="card-info">
                           <div className="card-number">
-                            •••• •••• •••• {card.CardNumber.slice(-4)}
+                            {card.CardNumber}
                           </div>
                           <div className="card-name">{card.FullName}</div>
                         </div>
@@ -425,7 +421,7 @@ function ProductPage({ userEmail, userName, product, onLogoClick, onBack, onPurc
                     <p className="text-muted">No tienes tarjetas registradas</p>
                   </div>
                 )}
-                
+
                 <button
                   className="add-card-button"
                   onClick={() => {
@@ -459,101 +455,101 @@ function ProductPage({ userEmail, userName, product, onLogoClick, onBack, onPurc
 
       {/* Modal de Registro de Tarjeta */}
       {showCardModal && (
-  <div
-    className="modal show fade d-block"
-    tabIndex="-1"
-    style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-  >
-    <div className="modal-dialog modal-dialog-centered">
-      <div className="modal-content">
-        <div className="modal-header">
-          <h5 className="modal-title">Registrar Tarjeta</h5>
-          <button
-            type="button"
-            className="btn-close"
-            onClick={handleCardModalClose}
-          ></button>
+        <div
+          className="modal show fade d-block"
+          tabIndex="-1"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Registrar Tarjeta</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={handleCardModalClose}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <form>
+                  <div className="mb-3">
+                    <label htmlFor="cardNumber" className="form-label">
+                      Número de Tarjeta
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="cardNumber"
+                      name="cardNumber"
+                      value={cardInfo.cardNumber}
+                      onChange={handleCardInfoChange}
+                      maxLength="16"
+                      placeholder="1234 5678 9012 3456"
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="cardName" className="form-label">
+                      Nombre en la Tarjeta
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="cardName"
+                      name="cardName"
+                      value={cardInfo.cardName}
+                      onChange={handleCardInfoChange}
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="expiryDate" className="form-label">
+                      Fecha de Expiración (MM/AA)
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="expiryDate"
+                      name="expiryDate"
+                      value={cardInfo.expiryDate}
+                      onChange={handleCardInfoChange}
+                      placeholder="MM/AA"
+                      pattern="^(0[1-9]|1[0-2])\/\d{2}$"
+                      title="Formato correcto: MM/AA"
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="cvv" className="form-label">
+                      CVV
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="cvv"
+                      name="cvv"
+                      value={cardInfo.cvv}
+                      onChange={handleCardInfoChange}
+                      maxLength="4"
+                      placeholder="123"
+                    />
+                  </div>
+                </form>
+              </div>
+              <div className="modal-footer">
+                <button
+                  className="btn btn-secondary"
+                  onClick={handleCardModalClose}
+                >
+                  Cancelar
+                </button>
+                <button className="btn btn-primary" onClick={handleSaveCard}>
+                  Guardar Tarjeta
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="modal-body">
-          <form>
-            <div className="mb-3">
-              <label htmlFor="cardNumber" className="form-label">
-                Número de Tarjeta
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="cardNumber"
-                name="cardNumber"
-                value={cardInfo.cardNumber}
-                onChange={handleCardInfoChange}
-                maxLength="16"
-                placeholder="1234 5678 9012 3456"
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="cardName" className="form-label">
-                Nombre en la Tarjeta
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="cardName"
-                name="cardName"
-                value={cardInfo.cardName}
-                onChange={handleCardInfoChange}
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="expiryDate" className="form-label">
-                Fecha de Expiración (MM/AA)
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="expiryDate"
-                name="expiryDate"
-                value={cardInfo.expiryDate}
-                onChange={handleCardInfoChange}
-                placeholder="MM/AA"
-                maxLength="10"
-                pattern="\d{2}\/\d{2}"
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="cvv" className="form-label">
-                CVV
-              </label>
-              <input
-                type="text"
-                className="form-control"
-                id="cvv"
-                name="cvv"
-                value={cardInfo.cvv}
-                onChange={handleCardInfoChange}
-                maxLength="4"
-              />
-            </div>
-          </form>
-        </div>
-        <div className="modal-footer">
-          <button
-            className="btn btn-secondary"
-            onClick={handleCardModalClose}
-          >
-            Cancelar
-          </button>
-          <button className="btn btn-primary" onClick={handleSaveCard}>
-            Guardar Tarjeta
-          </button>
-        </div>
-      </div>
+      )}
     </div>
-  </div>
-)}
-  
-      </div>
-    );
-  }
+  );
+}
 
 export default ProductPage;
