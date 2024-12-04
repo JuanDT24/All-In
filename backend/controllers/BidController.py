@@ -1,5 +1,6 @@
 from modules.bid import Bid
 from database_controller import client
+from controllers.itemController import itemController
 
 class BidController():
     _instance = None
@@ -12,7 +13,10 @@ class BidController():
 
     def createBid(self, IdItem:int, IdBidder:int, Price:float, BidDate:str, ImmediatePurchase:bool):
         self._contador_id = client.query("Select max(idbid) from bids")[0]['max'] + 1
-        client.query(f"INSERT into bids (idbid, iditem, idbidder, price, biddate, immediatepurchase)VALUES ({self._contador_id}, {IdItem}, {IdBidder}, {Price}, '{BidDate}', {ImmediatePurchase})")
+        client.query(f"INSERT into bids (idbid, iditem, idbidder, price, biddate, immediatepurchase) VALUES ({self._contador_id}, {IdItem}, {IdBidder}, {Price}, '{BidDate}', {ImmediatePurchase})")
+        item_controller = itemController()
+        item_controller.changePrice(IdItem, self.getMaxBidbyItem(IdItem))
+
     
     def deleteBid(self, id): 
         client.query(f"Delete from bids where idbid = {id}")
@@ -82,7 +86,7 @@ class BidController():
         return None
     
     def getMaxBidbyItem(self, id):
-        result = client.query(f"Select max(price) from bids where iditem = {id}")
+        result = client.query(f"Select * from bids where iditem = {id} and price = (Select max(price) from bids where iditem = {id}) order by biddate desc limit 1")
         if result:
-            return result[0]['max']
+            return result[0]['idbid']
         return None

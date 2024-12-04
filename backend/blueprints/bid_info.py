@@ -11,7 +11,7 @@ def create_bid():
     try:
         data = request.get_json()
         if not all(key in data for key in ['IdItem', 'IdBidder', 'Price', 'BidDate', 'ImmediatePurchase']):
-            return jsonify({"error": "Faltan parámetros en la solicitud"}), 400
+            return jsonify({"error": "Faltan parámetros en la solicitud"}), 400, data
         bid_controller.createBid(data['IdItem'], data['IdBidder'], data['Price'], data['BidDate'], data['ImmediatePurchase'])
         return jsonify({"message": "Oferta añadida correctamente"}), 201
     except ValueError as e:
