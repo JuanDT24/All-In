@@ -22,3 +22,4 @@ class AdminController():
         bid_controller = BidController()
         item_controller = itemController()
         item_controller.changePrice(idItem, bid_controller.getMaxBidbyItem(idItem))
+
