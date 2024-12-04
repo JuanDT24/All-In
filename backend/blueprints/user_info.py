@@ -50,3 +50,20 @@ def edit_user(email):
         return jsonify({"error": str(e)}), 400
     except Exception as e:
         return jsonify({"error": "Error interno del servidor"}), 500
+@users_bp.route("/get_auctions_user/<string:email>")
+def get_auctions(email):
+    user_controller = UserController()
+    auctions = user_controller.get_auctions_user(email)
+    if auctions:
+        return jsonify(auctions)
+    else:
+        return jsonify({"message":f"Couldn't find auctions for this user"})
+@users_bp.route("/get_purchases_user/<string:email>")
+def get_purchases(email):
+    user_controller = UserController()
+    purchases = user_controller.get_auctions_user(email)
+    if auctions:
+        return jsonify(purchases)
+    else:
+        return jsonify({"message":f"Couldn't find purchases for this user"})
+
