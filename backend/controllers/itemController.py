@@ -27,12 +27,15 @@ class itemController():
             return result
         else: 
             return {"message":f"Couldn't find item with id: {id}"}
+        
     def getItems_per_category(self, idcategory):
+        self.updateAllBuyedItems()
         result = client.query(f"Select i.iditem, i.name, i.description, i.idcategory, ip.price, ip.immediatepurchaseprice, ip.minimumincrease, itd.duedate from items i  join itempricesettings ip on i.iditem = ip.iditem  join itemdate itd on i.iditem = itd.iditem where idcategory = {idcategory} and idbuyer is null")
         if result:
             return result
         else:
-            return None
+            return [{"message":f"No se encontraron items con esta categoria"}]
+        
     def getDateInfo(self, id):
         result = client.query(f"Select * from itemdate where iditem = {id}")
         return result
@@ -65,3 +68,28 @@ class itemController():
 
     def changeIdBuyer(self, id, idBuyer):
         client.query(f"Update items set idbuyer = {idBuyer} where iditem = {id}")
+
+    def AllBuyedItemsWithnoBuyer(self):
+    # Ejecutar la consulta para obtener los resultados
+            result = client.query(
+                "SELECT * FROM items i "
+                "JOIN itemdate id ON i.iditem = id.iditem "
+                "WHERE idbuyer IS NULL AND duedate < NOW()"
+            )
+            return result  # Devuelve los resultados obtenidos
+
+    def updateAllBuyedItems(self):
+            items = self.AllBuyedItemsWithnoBuyer()
+            # Validar si hay elementos en la lista
+            if items:
+                for item in items:
+                    result = self.getMaxBidbyItem(item['iditem'], 1)
+                    if result != []:
+                        self.changeIdBuyer(item['iditem'], result[0]['idbidder'])
+
+    def getMaxBidbyItem(self, id, option = 0):
+        result = client.query(f"Select * from bids where iditem = {id} and price = (Select max(price) from bids where iditem = {id}) order by biddate desc limit 1")
+        if result and option == 0:
+            return result[0]['price']
+        else:
+            return result
