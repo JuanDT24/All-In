@@ -26,7 +26,6 @@ function MisVentasPage({userEmail, userName, onLogoClick,}) {
         
         setSales(adaptedProducts);
       } catch (err) {
-        alert('Error')
       }
     };
   
