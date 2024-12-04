@@ -19,9 +19,11 @@ class PayMethodController():
     def getPayMethod_byuser(self, id):
         result = client.query(f"Select * from paymethods where iduser = {id}")
         return result
+        return result
 
     def getPayMethod_byid(self, id):
         result = client.query(f"Select * from paymethods where idpaym = {id}")
+        return result
         return result
     
     def check_id(self, id):

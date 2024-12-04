@@ -21,8 +21,6 @@ class BidController():
         if ImmediatePurchase:
             item_controller.changeIdBuyer(IdItem, IdBidder)
 
-
-    
     def deleteBid(self, id): 
         client.query(f"Delete from bids where idbid = {id}")
     
@@ -90,8 +88,9 @@ class BidController():
             return bid
         return None
     
-    def getMaxBidbyItem(self, id):
+    def getMaxBidbyItem(self, id, option = 0):
         result = client.query(f"Select * from bids where iditem = {id} and price = (Select max(price) from bids where iditem = {id}) order by biddate desc limit 1")
-        if result:
+        if result and option == 0:
             return result[0]['price']
-        return None
+        else:
+            return result
