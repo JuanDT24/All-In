@@ -4,6 +4,7 @@ import os
 from dotenv import load_dotenv
 
 class DatabaseController:
+
     def __init__(self):
         load_dotenv()
         self.dsn = os.getenv("DB_PASSWORD")
@@ -21,6 +22,7 @@ class DatabaseController:
             self.connection.close()
 
     def query(self, query_sql, params=None):
+        client.connect()
         try:
             with self.connection.cursor() as cursor:
                 cursor.execute(query_sql, params)
@@ -31,7 +33,8 @@ class DatabaseController:
         except Exception as e:
             print(f"Error executing query: {e}")
             raise
+        finally:
+            client.close()
 
 ### Instancia única            
 client = DatabaseController()
-client.connect()
