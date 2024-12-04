@@ -86,7 +86,7 @@ class BidController():
         return None
     
     def getMaxBidbyItem(self, id):
-        result = client.query(f"Select max(price) from bids where iditem = {id}")
+        result = client.query(f"Select * from bids where iditem = {id} and price = (Select max(price) from bids where iditem = {id}) order by biddate desc limit 1")
         if result:
-            return result[0]['max']
+            return result[0]['idbid']
         return None
