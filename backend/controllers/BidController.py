@@ -16,6 +16,11 @@ class BidController():
         client.query(f"INSERT into bids (idbid, iditem, idbidder, price, biddate, immediatepurchase) VALUES ({self._contador_id}, {IdItem}, {IdBidder}, {Price}, '{BidDate}', {ImmediatePurchase})")
         item_controller = itemController()
         item_controller.changePrice(IdItem, self.getMaxBidbyItem(IdItem))
+        if Price >= item_controller.getPriceInfo(IdItem)[0]['immediatepurchaseprice']:
+            ImmediatePurchase = True
+        if ImmediatePurchase:
+            item_controller.changeIdBuyer(IdItem, IdBidder)
+
 
     
     def deleteBid(self, id): 
