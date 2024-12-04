@@ -1,266 +1,356 @@
 // SellPage.js
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import categories from './categories';
 import logo from './Logo.png';
+import { MdArrowBack, MdCloudUpload } from 'react-icons/md';
+import categories from './categories';
 
-function SellPage({ userName, onLogoClick, onProductSubmit }) {
+function SellPage({ userName, onLogoClick, onProductSubmit, userEmail }) {
   const [formData, setFormData] = useState({
-    categoryId: '',
     name: '',
-   
     description: '',
-    image: null,
-    auctionEndDate: '',        // Fecha de terminación de la subasta
-    auctionPrice: '',          // Precio de subasta
-    instantBuyPrice: '',       // Precio de compra inmediata
-    minBidIncrement: '',       // Mínimo para la puja
+    categoryId: '',
+    auctionPrice: '',
+    instantBuyPrice: '',
+    minBidIncrement: '',
+    auctionEndDate: '',
+    image: null
   });
 
-  // Maneja los cambios en los inputs
+  const [previewImage, setPreviewImage] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-
-    setFormData({ ...formData, [name]: value });
+    setFormData(prevState => ({
+      ...prevState,
+      [name]: value
+    }));
   };
 
-  // Maneja la carga de la imagen
   const handleImageChange = (e) => {
     const file = e.target.files[0];
-    setFormData({ ...formData, image: file });
+    if (file) {
+      setFormData(prevState => ({
+        ...prevState,
+        image: file
+      }));
+      setPreviewImage(URL.createObjectURL(file));
+    }
   };
 
-  // Manejador del formulario
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError(null);
 
-    // Validar que todos los campos estén completos
-    if (
-      !formData.categoryId ||
-      !formData.name ||
+    try {
+      // Obtener información del usuario
+      const response = await fetch(`http://localhost:5000/api/users/${userEmail}`);
+      const dataUser = await response.json();
 
-      !formData.description ||
-      !formData.image ||
-      !formData.auctionEndDate ||
-      !formData.auctionPrice ||
-      !formData.instantBuyPrice ||
-      !formData.minBidIncrement
-    ) {
-      alert('Por favor, completa todos los campos.');
-      return;
+      // Crear nuevo producto para el estado local
+      const newProduct = {
+        name: formData.name,
+        description: formData.description,
+        categoryId: parseInt(formData.categoryId),
+        image: URL.createObjectURL(formData.image),
+        auctionStartDate: new Date().toISOString(),
+        auctionEndDate: formData.auctionEndDate,
+        auctionPrice: formData.auctionPrice,
+        instantBuyPrice: formData.instantBuyPrice,
+        minBidIncrement: formData.minBidIncrement,
+      };
+
+      // Llamar a la función para agregar el producto al estado
+      onProductSubmit(newProduct);
+
+      // Preparar datos para enviar al servidor
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', formData.name);
+      formDataToSend.append('description', formData.description);
+      formDataToSend.append('idseller', dataUser[0].iduser);
+      formDataToSend.append('current_price', formData.auctionPrice);
+      formDataToSend.append('starting_price', formData.auctionPrice);
+      formDataToSend.append('inmediate_purchase_price', formData.instantBuyPrice);
+      formDataToSend.append('minimum_increase', formData.minBidIncrement);
+      formDataToSend.append('post_date', new Date().toISOString());
+      formDataToSend.append('start_date', new Date().toISOString());
+      formDataToSend.append('due_date', formData.auctionEndDate);
+      formDataToSend.append('idcategory', parseInt(formData.categoryId));
+      formDataToSend.append('image', formData.image);
+
+      // Enviar al servidor
+      const submitResponse = await fetch('http://localhost:5000/api/items/', {
+        method: 'POST',
+        body: formDataToSend,
+      });
+
+      if (!submitResponse.ok) {
+        throw new Error('Error al crear el producto');
+      }
+
+      alert('Producto creado exitosamente');
+      onLogoClick();
+    } catch (error) {
+      setError(error.message);
+      alert('Error: ' + error.message);
+    } finally {
+      setLoading(false);
     }
-
-    // Crear un objeto de producto
-    const newProduct = {
-      id: Date.now(), // Usamos la marca de tiempo como ID único
-      name: formData.name,
-  
-      description: formData.description,
-      categoryId: parseInt(formData.categoryId),
-      image: URL.createObjectURL(formData.image), // Creamos una URL para la imagen
-      auctionStartDate: new Date().toISOString(), // Fecha actual en formato ISO
-      auctionEndDate: formData.auctionEndDate,
-      auctionPrice: formData.auctionPrice,
-      instantBuyPrice: formData.instantBuyPrice,
-      minBidIncrement: formData.minBidIncrement,
-    };
-
-    // Llamamos a la función para agregar el producto
-    onProductSubmit(newProduct);
-
-    // Reiniciamos el formulario
-    setFormData({
-      categoryId: '',
-      name: '',
-  
-      description: '',
-      image: null,
-      auctionEndDate: '',
-      auctionPrice: '',
-      instantBuyPrice: '',
-      minBidIncrement: '',
-    });
-
-    // Navegamos de vuelta a la página principal o a la categoría
-    onLogoClick();
   };
 
   return (
-    <div
-      style={{
-        fontFamily: "'Poppins', sans-serif",
-        backgroundColor: '#f0f2f5',
-        minHeight: '100vh',
-      }}
-    >
-      {/* Barra de navegación */}
-      <nav
-        className="navbar navbar-expand-lg navbar-dark"
-        style={{ backgroundColor: '#001f3f' }}
-      >
+    <div style={{ 
+      backgroundColor: '#f8fafc',
+      minHeight: '100vh',
+      fontFamily: "'Inter', sans-serif"
+    }}>
+      <nav className="navbar navbar-expand-lg" style={{
+        backgroundColor: '#ffffff',
+        boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+      }}>
         <div className="container">
           <button
             className="navbar-brand btn btn-link p-0 m-0 d-flex align-items-center"
             onClick={onLogoClick}
-            style={{ textDecoration: 'none', color: 'white' }}
+            style={{ textDecoration: 'none', color: '#2c3e50', fontWeight: 700 }}
           >
             <img
               src={logo}
               alt="Logo"
-              style={{ width: '40px', height: '40px', marginRight: '10px' }}
+              style={{ width: '45px', height: '45px', marginRight: '15px', borderRadius: '50%' }}
             />
             All In
           </button>
-          <div className="collapse navbar-collapse">
-            <span className="navbar-text ms-auto">Bienvenido, {userName}</span>
+          <div className="collapse navbar-collapse justify-content-end">
+            <span className="navbar-text me-3">Bienvenido, {userName}</span>
+            <button 
+              className="btn btn-outline-primary"
+              onClick={onLogoClick}
+              style={{
+                borderColor: '#3498db',
+                color: '#3498db',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              <MdArrowBack className="me-2" />
+              Volver
+            </button>
           </div>
         </div>
       </nav>
 
-      {/* Contenido principal */}
-      <div className="container mt-4">
-        <h2 className="mb-4">Subastar Producto</h2>
-        <form onSubmit={handleSubmit}>
-          {/* Categoría */}
-          <div className="mb-3">
-            <label htmlFor="categoryId" className="form-label">
-              Categoría
-            </label>
-            <select
-              id="categoryId"
-              name="categoryId"
-              className="form-select"
-              value={formData.categoryId}
-              onChange={handleInputChange}
-            >
-              <option value="">Selecciona una categoría</option>
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
+      <div className="container py-5">
+        <div className="row justify-content-center">
+          <div className="col-lg-8">
+            <div className="card shadow-lg border-0" style={{ borderRadius: '15px' }}>
+              <div className="card-body p-4">
+                <h2 className="text-center mb-4" style={{ fontWeight: 700, color: '#2c3e50' }}>
+                  Publicar Nuevo Producto
+                </h2>
+
+                <form onSubmit={handleSubmit}>
+                  <div className="row g-4">
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label fw-bold">Nombre del Producto</label>
+                        <input
+                          type="text"
+                          name="name"
+                          className="form-control"
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
+
+                      <div className="mb-3">
+                        <label className="form-label fw-bold">Categoría</label>
+                        <select
+                          name="categoryId"
+                          className="form-select"
+                          value={formData.categoryId}
+                          onChange={handleInputChange}
+                          required
+                        >
+                          <option value="">Seleccionar categoría</option>
+                          {categories.map(category => (
+                            <option key={category.id} value={category.id}>
+                              {category.name}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="mb-3">
+                        <label className="form-label fw-bold">Precio Inicial</label>
+                        <div className="input-group">
+                          <span className="input-group-text">$</span>
+                          <input
+                            type="number"
+                            name="auctionPrice"
+                            className="form-control"
+                            value={formData.auctionPrice}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="col-md-6">
+                      <div className="mb-3">
+                        <label className="form-label fw-bold">Precio de Compra Inmediata</label>
+                        <div className="input-group">
+                          <span className="input-group-text">$</span>
+                          <input
+                            type="number"
+                            name="instantBuyPrice"
+                            className="form-control"
+                            value={formData.instantBuyPrice}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mb-3">
+                        <label className="form-label fw-bold">Incremento Mínimo</label>
+                        <div className="input-group">
+                          <span className="input-group-text">$</span>
+                          <input
+                            type="number"
+                            name="minBidIncrement"
+                            className="form-control"
+                            value={formData.minBidIncrement}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div className="mb-3">
+                        <label className="form-label fw-bold">Fecha de Cierre</label>
+                        <input
+                          type="datetime-local"
+                          name="auctionEndDate"
+                          className="form-control"
+                          value={formData.auctionEndDate}
+                          onChange={handleInputChange}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <div className="col-12">
+                      <div className="mb-3">
+                        <label className="form-label fw-bold">Descripción</label>
+                        <textarea
+                          name="description"
+                          className="form-control"
+                          rows="4"
+                          value={formData.description}
+                          onChange={handleInputChange}
+                          required
+                        ></textarea>
+                      </div>
+                    </div>
+
+                    <div className="col-12">
+                      <div className="mb-4">
+                        <label className="form-label fw-bold">Imagen del Producto</label>
+                        <div 
+                          className="drop-zone p-4 text-center border rounded-3"
+                          style={{
+                            backgroundColor: '#f8fafc',
+                            border: '2px dashed #e2e8f0',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <input
+                            type="file"
+                            id="image"
+                            name="image"
+                            className="form-control"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            required
+                            style={{ display: 'none' }}
+                          />
+                          <label htmlFor="image" style={{ cursor: 'pointer' }}>
+                            <MdCloudUpload size={48} className="text-primary mb-2" />
+                            <p className="mb-0">
+                              {previewImage ? 'Cambiar imagen' : 'Subir imagen del producto'}
+                            </p>
+                          </label>
+                          {previewImage && (
+                            <div className="mt-3">
+                              <img
+                                src={previewImage}
+                                alt="Preview"
+                                style={{
+                                  maxWidth: '100%',
+                                  maxHeight: '200px',
+                                  borderRadius: '8px'
+                                }}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="text-center">
+                    <button
+                      type="submit"
+                      className="btn btn-primary px-5 py-2"
+                      disabled={loading}
+                      style={{
+                        background: 'linear-gradient(135deg, #3498db 0%, #2980b9 100%)',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '1.1rem',
+                        fontWeight: '500'
+                      }}
+                    >
+                      {loading ? 'Publicando...' : 'Publicar Producto'}
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
-
-          {/* Nombre del producto */}
-          <div className="mb-3">
-            <label htmlFor="name" className="form-label">
-              Nombre del Producto
-            </label>
-            <input
-              type="text"
-              id="name"
-              name="name"
-              className="form-control"
-              value={formData.name}
-              onChange={handleInputChange}
-            />
-          </div>
-
-  
-
-          {/* Precio de subasta */}
-          <div className="mb-3">
-            <label htmlFor="auctionPrice" className="form-label">
-              Precio de Subasta
-            </label>
-            <input
-              type="number"
-              id="auctionPrice"
-              name="auctionPrice"
-              className="form-control"
-              value={formData.auctionPrice}
-              onChange={handleInputChange}
-            />
-          </div>
-
-          {/* Precio de compra inmediata */}
-          <div className="mb-3">
-            <label htmlFor="instantBuyPrice" className="form-label">
-              Precio de Compra Inmediata
-            </label>
-            <input
-              type="number"
-              id="instantBuyPrice"
-              name="instantBuyPrice"
-              className="form-control"
-              value={formData.instantBuyPrice}
-              onChange={handleInputChange}
-            />
-          </div>
-
-          {/* Mínimo para la puja */}
-          <div className="mb-3">
-            <label htmlFor="minBidIncrement" className="form-label">
-              Mínimo para la Puja
-            </label>
-            <input
-              type="number"
-              id="minBidIncrement"
-              name="minBidIncrement"
-              className="form-control"
-              value={formData.minBidIncrement}
-              onChange={handleInputChange}
-            />
-          </div>
-
-          {/* Fecha de terminación de la subasta */}
-          <div className="mb-3">
-            <label htmlFor="auctionEndDate" className="form-label">
-              Fecha de Terminación de la Subasta
-            </label>
-            <input
-              type="datetime-local"
-              id="auctionEndDate"
-              name="auctionEndDate"
-              className="form-control"
-              value={formData.auctionEndDate}
-              onChange={handleInputChange}
-            />
-          </div>
-
-          {/* Descripción */}
-          <div className="mb-3">
-            <label htmlFor="description" className="form-label">
-              Descripción
-            </label>
-            <textarea
-              id="description"
-              name="description"
-              className="form-control"
-              rows="4"
-              value={formData.description}
-              onChange={handleInputChange}
-            ></textarea>
-          </div>
-
-          {/* Imagen */}
-          <div className="mb-3">
-            <label htmlFor="image" className="form-label">
-              Imagen del Producto
-            </label>
-            <input
-              type="file"
-              id="image"
-              name="image"
-              className="form-control"
-              accept="image/*"
-              onChange={handleImageChange}
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="btn btn-primary"
-            style={{
-              backgroundColor: '#001f3f',
-              borderColor: '#001f3f',
-            }}
-          >
-            Publicar Producto
-          </button>
-        </form>
+        </div>
       </div>
+
+      <style>{`
+        .form-control, .form-select {
+          border-radius: 8px;
+          border: 1px solid #e2e8f0;
+          padding: 0.75rem;
+          transition: all 0.3s ease;
+        }
+        .form-control:focus, .form-select:focus {
+          border-color: #3498db;
+          box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+        .input-group-text {
+          background-color: #f8fafc;
+          border: 1px solid #e2e8f0;
+          border-radius: 8px 0 0 8px;
+        }
+        .btn-primary:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+        }
+        .drop-zone:hover {
+          border-color: #3498db;
+          background-color: #f0f9ff;
+        }
+      `}</style>
     </div>
   );
 }
