@@ -1,10 +1,36 @@
 // MisComprasPage.js
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import logo from './Logo.png';
 import { MdArrowBack } from 'react-icons/md';
 
-function MisComprasPage({ userName, onLogoClick, misCompras }) {
+function MisComprasPage({userEmail, userName, onLogoClick}) {
+
+  const [purchases, setPurchases] = useState([]);
+  
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/users/get_purchases_user/${userEmail}`);
+        if (!response.ok) throw new Error('Error al cargar los productos.');
+        
+        const data = await response.json();
+        
+        const adaptedProducts = data.map(purchase => ({
+          id: purchase.iditem,          
+          name: purchase.name,
+          instantBuyPrice: purchase.price,
+          auctionEndDate: purchase.startingdate,
+          image: `http://localhost:5000/api/items/get-item-image/${purchase.iditem}`
+        }));
+        
+        setPurchases(adaptedProducts);
+      } catch (err) {
+      }
+    };
+  
+    fetchProducts();
+  }, [userEmail]);  
   return (
     <div
       style={{
@@ -68,9 +94,9 @@ function MisComprasPage({ userName, onLogoClick, misCompras }) {
         <h2 className="mb-5 text-center" style={{ fontWeight: 700 }}>
           Mis Compras
         </h2>
-        {misCompras.length > 0 ? (
+        {purchases.length > 0 ? (
           <div className="row g-4">
-            {misCompras.map((compra) => (
+            {purchases.map((compra) => (
               <div className="col-md-4" key={compra.id}>
                 <div
                   className="card border-0 h-100 shadow-sm transform-on-hover"

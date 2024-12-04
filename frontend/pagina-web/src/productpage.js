@@ -1,10 +1,13 @@
+// ProductPage.js
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import logo from './Logo.png';
+import { MdArrowBack, MdPayment, MdAdd, MdCreditCard } from 'react-icons/md';
 
-function ProductPage({userEmail, userName, product, onLogoClick, onBack, onPurchase }) {
-  const [showPurchaseModal, setShowPurchaseModal] = useState(false);
+function ProductPage({ userEmail, userName, product, onLogoClick, onBack, onPurchase }) {
   const [showBidModal, setShowBidModal] = useState(false);
+  const [showCardModal, setShowCardModal] = useState(false);
+  const [showCardSelectionModal, setShowCardSelectionModal] = useState(false);
   const [bidAmount, setBidAmount] = useState('');
   const [cardInfo, setCardInfo] = useState({
     cardNumber: '',
@@ -12,25 +15,25 @@ function ProductPage({userEmail, userName, product, onLogoClick, onBack, onPurch
     expiryDate: '',
     cvv: '',
   });
-
-
   const [savedCards, setSavedCards] = useState([]);
+  const [selectedCard, setSelectedCard] = useState(null);
 
-  const handleBuyClick = () => setShowPurchaseModal(true);
+  useEffect(() => {
+    const fetchCards = async () => {
+      try {
+        const response = await fetch(`http://localhost:5000/api/pay_methods/user/${userEmail}`);
+        const data = await response.json();
+        setSavedCards(data);
+      } catch (error) {
+        console.error('Error al cargar las tarjetas:', error);
+      }
+    };
+    fetchCards();
+  }, [userEmail]);
 
   const handleBidClick = () => {
-    setBidAmount(''); // Restablecer monto de oferta al abrir el modal
+    setBidAmount('');
     setShowBidModal(true);
-  };
-
-  const handlePurchaseModalClose = () => {
-    setShowPurchaseModal(false);
-    setCardInfo({
-      cardNumber: '',
-      cardName: '',
-      expiryDate: '',
-      cvv: '',
-    });
   };
 
   const handleBidModalClose = () => {
@@ -38,19 +41,8 @@ function ProductPage({userEmail, userName, product, onLogoClick, onBack, onPurch
     setBidAmount('');
   };
 
-  const handleCardInfoChange = (e) => {
-    const { name, value } = e.target;
-    setCardInfo({ ...cardInfo, [name]: value });
-  };
-
-  const handleSaveCard = () => {
-    if (!cardInfo.cardNumber || !cardInfo.cardName || !cardInfo.expiryDate || !cardInfo.cvv) {
-      alert('Por favor, completa toda la información de la tarjeta.');
-      return;
-    }
-
-    setSavedCards([...savedCards, { ...cardInfo }]);
-    alert('Tarjeta registrada exitosamente.');
+  const handleCardModalClose = () => {
+    setShowCardModal(false);
     setCardInfo({
       cardNumber: '',
       cardName: '',
@@ -59,21 +51,53 @@ function ProductPage({userEmail, userName, product, onLogoClick, onBack, onPurch
     });
   };
 
-  const handlePurchase = () => {
+  const handleCardInfoChange = (e) => {
+    const { name, value } = e.target;
+    setCardInfo({ ...cardInfo, [name]: value });
+  };
+
+  const handleSaveCard = async () => {
     if (!cardInfo.cardNumber || !cardInfo.cardName || !cardInfo.expiryDate || !cardInfo.cvv) {
       alert('Por favor, completa toda la información de la tarjeta.');
       return;
     }
 
-    if (onPurchase) {
-      onPurchase(product);
-      alert(`Compra exitosa del producto: ${product.name} por ${formatCurrency(product.instantBuyPrice)}`);
-    }
+    try {
+      const responseUser = await fetch(`http://localhost:5000/api/users/${userEmail}`);
+      const dataUser = await responseUser.json();
+      const cardData = {
+        FullName: cardInfo.cardName,
+        CardNumber: cardInfo.cardNumber,
+        ID: 123,
+        Bank: "bancolombia",
+        CVC: cardInfo.cvv,
+        ExpirationDate: cardInfo.expiryDate,
+        IdUser: dataUser[0].iduser,
+      };
 
-    setShowPurchaseModal(false);
+      const response = await fetch('http://localhost:5000/api/pay_methods/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(cardData),
+      });
+
+      if (response.ok) {
+        const newCard = await response.json();
+        setSavedCards([...savedCards, newCard]);
+        alert('Tarjeta registrada exitosamente.');
+        handleCardModalClose();
+        setShowCardSelectionModal(true);
+      } else {
+        alert('Error al registrar la tarjeta.');
+      }
+    } catch (error) {
+      alert('Error al conectar con el servidor.');
+    }
   };
 
-  const handleBidSubmit = async() => {
+  const handleBidSubmit = () => {
     const minimumBid = parseFloat(product.BidPrice) + parseFloat(product.minBidIncrement);
     const enteredBid = parseFloat(bidAmount);
 
@@ -87,44 +111,68 @@ function ProductPage({userEmail, userName, product, onLogoClick, onBack, onPurch
       return;
     }
 
-    const response = await fetch(`http://localhost:5000/api/users/${userEmail}`);
-    const dataUser = await response.json();
+    setShowBidModal(false);
+    setShowCardSelectionModal(true);
+  };
 
-    let ImmPur = false
-    if(enteredBid >= product.instantBuyPrice){
-      ImmPur = true
+  const handleCardSelectionClose = () => {
+    setShowCardSelectionModal(false);
+    setSelectedCard(null);
+  };
+
+  const handleConfirmPayment = async () => {
+    if (!selectedCard) {
+      alert('Por favor, selecciona una tarjeta para continuar.');
+      return;
     }
 
-    const bidData = {
-      IdItem: product.id,
-      IdBidder: dataUser[0].iduser,
-      Price: enteredBid,
-      BidDate: new Date().toISOString(),
-      ImmediatePurchase: ImmPur
-    };
+    const enteredBid = parseFloat(bidAmount);
+    const instantBuyPrice = parseFloat(product.instantBuyPrice);
 
     try {
-      const response = await fetch('http://localhost:5000/api/bids/',{
+      const responseUser = await fetch(`http://localhost:5000/api/users/${userEmail}`);
+      const dataUser = await responseUser.json();
+      let ImmPur = false;
+      if (enteredBid >= instantBuyPrice) {
+        ImmPur = true;
+      }
+
+      const bidData = {
+        IdItem: product.id,
+        IdBidder: dataUser[0].iduser,
+        Price: enteredBid,
+        BidDate: new Date().toISOString(),
+        ImmediatePurchase: ImmPur,
+      };
+
+      const response = await fetch('http://localhost:5000/api/bids/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(bidData)
+        body: JSON.stringify(bidData),
       });
-      const data = await response.json();
-      if (!response.ok){
-        alert('Error al Pujar')
+
+      if (response.ok) {
+        if (ImmPur) {
+          const purchaseData = {
+            ...product,
+            purchaseDate: new Date(),
+            purchasePrice: instantBuyPrice,
+          };
+          onPurchase(purchaseData);
+          alert(`¡Compra realizada exitosamente! Has adquirido ${product.name} por ${formatCurrency(instantBuyPrice)}`);
+          onBack();
+        } else {
+          alert(`Tu oferta de ${formatCurrency(enteredBid)} ha sido registrada para el producto: ${product.name}`);
+        }
+        setShowCardSelectionModal(false);
+      } else {
+        alert('Error al procesar la puja.');
       }
-      alert('Puja Exitosa')
-      
-    } catch (error){
-      alert('Error al conectar con el servidor')
+    } catch (error) {
+      alert('Error al conectar con el servidor.');
     }
-
-    alert(`Tu oferta de ${formatCurrency(enteredBid)} ha sido registrada para el producto: ${product.name}`);
-    setShowBidModal(false);
-
-
   };
 
   const formatCurrency = (value) => {
@@ -140,7 +188,6 @@ function ProductPage({userEmail, userName, product, onLogoClick, onBack, onPurch
         color: '#2c3e50',
       }}
     >
-      {/* Barra de navegación */}
       <nav
         className="navbar navbar-expand-lg"
         style={{
@@ -172,17 +219,24 @@ function ProductPage({userEmail, userName, product, onLogoClick, onBack, onPurch
             All In
           </button>
           <div className="collapse navbar-collapse justify-content-end">
-            <span className="navbar-text">Bienvenido, {userName}</span>
+            <span className="navbar-text me-3">Bienvenido, {userName}</span>
+            <button
+              className="btn btn-outline-primary"
+              onClick={onBack}
+              style={{
+                borderColor: '#3498db',
+                color: '#3498db',
+                transition: 'all 0.3s ease',
+              }}
+            >
+              <MdArrowBack className="me-2" />
+              Volver
+            </button>
           </div>
         </div>
       </nav>
 
-      {/* Contenido principal */}
       <div className="container py-5">
-        <button className="btn btn-outline-secondary mb-4" onClick={onBack}>
-          &larr; Volver
-        </button>
-
         <div
           className="card border-0 shadow-lg"
           style={{
@@ -191,7 +245,6 @@ function ProductPage({userEmail, userName, product, onLogoClick, onBack, onPurch
           }}
         >
           <div className="row g-0">
-            {/* Imagen del producto */}
             <div className="col-md-6">
               <img
                 src={product.image}
@@ -205,7 +258,6 @@ function ProductPage({userEmail, userName, product, onLogoClick, onBack, onPurch
               />
             </div>
 
-            {/* Detalles del producto */}
             <div className="col-md-6 bg-white">
               <div className="p-5">
                 <h2
@@ -250,17 +302,7 @@ function ProductPage({userEmail, userName, product, onLogoClick, onBack, onPurch
 
                 <div className="d-grid gap-3">
                   <button
-                    className="btn btn-primary btn-lg"
-                    onClick={handleBuyClick}
-                    style={{
-                      backgroundColor: '#3498db',
-                      borderColor: '#3498db',
-                    }}
-                  >
-                    Comprar Ahora
-                  </button>
-                  <button
-                    className="btn btn-outline-warning btn-lg"
+                    className="btn btn-warning btn-lg"
                     onClick={handleBidClick}
                   >
                     Hacer Oferta
@@ -272,103 +314,7 @@ function ProductPage({userEmail, userName, product, onLogoClick, onBack, onPurch
         </div>
       </div>
 
-      {/* Modal de compra */}
-      {showPurchaseModal && (
-        <div
-          className="modal show fade d-block"
-          tabIndex="-1"
-          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
-        >
-          <div className="modal-dialog modal-dialog-centered">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">Confirmar Compra</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={handlePurchaseModalClose}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <form>
-                  <div className="mb-3">
-                    <label htmlFor="cardNumber" className="form-label">
-                      Número de Tarjeta
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="cardNumber"
-                      name="cardNumber"
-                      value={cardInfo.cardNumber}
-                      onChange={handleCardInfoChange}
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="cardName" className="form-label">
-                      Nombre en la Tarjeta
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="cardName"
-                      name="cardName"
-                      value={cardInfo.cardName}
-                      onChange={handleCardInfoChange}
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="expiryDate" className="form-label">
-                      Fecha de Expiración
-                    </label>
-                    <input
-                      type="month"
-                      className="form-control"
-                      id="expiryDate"
-                      name="expiryDate"
-                      value={cardInfo.expiryDate}
-                      onChange={handleCardInfoChange}
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label htmlFor="cvv" className="form-label">
-                      CVV
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="cvv"
-                      name="cvv"
-                      value={cardInfo.cvv}
-                      onChange={handleCardInfoChange}
-                    />
-                  </div>
-                </form>
-                <button
-                  className="btn btn-success"
-                  onClick={handleSaveCard}
-                  style={{ marginTop: '10px' }}
-                >
-                  Guardar Tarjeta
-                </button>
-              </div>
-              <div className="modal-footer">
-                <button
-                  className="btn btn-secondary"
-                  onClick={handlePurchaseModalClose}
-                >
-                  Cancelar
-                </button>
-                <button className="btn btn-primary" onClick={handlePurchase}>
-                  Confirmar Compra
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Modal de oferta */}
+      {/* Modal de Puja */}
       {showBidModal && (
         <div
           className="modal show fade d-block"
@@ -399,12 +345,7 @@ function ProductPage({userEmail, userName, product, onLogoClick, onBack, onPurch
                       onChange={(e) => setBidAmount(e.target.value)}
                     />
                     <small className="form-text text-muted">
-                      El monto mínimo para pujar es{' '}
-                      {formatCurrency(
-                        parseFloat(product.BidPrice) +
-                          parseFloat(product.minBidIncrement)
-                      )}
-                      .
+                      El monto mínimo para pujar es {formatCurrency(parseFloat(product.BidPrice) + parseFloat(product.minBidIncrement))}.
                     </small>
                   </div>
                 </form>
@@ -418,6 +359,183 @@ function ProductPage({userEmail, userName, product, onLogoClick, onBack, onPurch
                 </button>
                 <button className="btn btn-primary" onClick={handleBidSubmit}>
                   Confirmar Oferta
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Selección de Tarjeta */}
+      {showCardSelectionModal && (
+        <div
+          className="modal show fade d-block"
+          tabIndex="-1"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header border-0">
+                <h5 className="modal-title fw-bold">
+                  <MdPayment className="me-2" />
+                  Selecciona una Tarjeta
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={handleCardSelectionClose}
+                ></button>
+              </div>
+              <div className="modal-body">
+                {savedCards.length > 0 ? (
+                  <div className="saved-cards-container">
+                    {savedCards.map((card) => (
+                      <div key={card.idpaym} className={`card-option ${selectedCard?.idpay_method === card.idpay_method ? 'selected' : ''}`} onClick={() => setSelectedCard(card)}>
+                        <div className="card-badge">
+                          <MdCreditCard size={24} />
+                        </div>
+                        <div className="card-info">
+                          <div className="card-number">
+                            {card.cardnumber}
+                          </div>
+                          <div className="card-name">{card.fullname}</div>
+                        </div>
+                        <input
+                          type="radio"
+                          className="card-radio"
+                          checked={selectedCard?.idpaym === card.idpaym}
+                          onChange={() => setSelectedCard(card)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="empty-state">
+                    <MdCreditCard size={48} className="text-muted mb-3" />
+                    <p className="text-muted">No tienes tarjetas registradas</p>
+                  </div>
+                )}
+
+                <button
+                  className="add-card-button"
+                  onClick={() => {
+                    setShowCardSelectionModal(false);
+                    setShowCardModal(true);
+                  }}
+                >
+                  <MdAdd size={20} className="me-2" />
+                  Agregar nueva tarjeta
+                </button>
+              </div>
+              <div className="modal-footer border-0">
+                <button
+                  className="btn btn-secondary"
+                  onClick={handleCardSelectionClose}
+                >
+                  Cancelar
+                </button>
+                <button
+                  className="btn btn-primary"
+                  onClick={handleConfirmPayment}
+                  disabled={!selectedCard}
+                >
+                  Confirmar Pago
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Registro de Tarjeta */}
+      {showCardModal && (
+        <div
+          className="modal show fade d-block"
+          tabIndex="-1"
+          style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Registrar Tarjeta</h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={handleCardModalClose}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <form>
+                  <div className="mb-3">
+                    <label htmlFor="cardNumber" className="form-label">
+                      Número de Tarjeta
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="cardNumber"
+                      name="cardNumber"
+                      value={cardInfo.cardNumber}
+                      onChange={handleCardInfoChange}
+                      maxLength="16"
+                      placeholder="1234 5678 9012 3456"
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="cardName" className="form-label">
+                      Nombre en la Tarjeta
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="cardName"
+                      name="cardName"
+                      value={cardInfo.cardName}
+                      onChange={handleCardInfoChange}
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="expiryDate" className="form-label">
+                      Fecha de Expiración (MM/AA)
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="expiryDate"
+                      name="expiryDate"
+                      value={cardInfo.expiryDate}
+                      onChange={handleCardInfoChange}
+                      placeholder="MM/AA"
+                      pattern="^(0[1-9]|1[0-2])\/\d{2}$"
+                      title="Formato correcto: MM/AA"
+                    />
+                  </div>
+                  <div className="mb-3">
+                    <label htmlFor="cvv" className="form-label">
+                      CVV
+                    </label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      id="cvv"
+                      name="cvv"
+                      value={cardInfo.cvv}
+                      onChange={handleCardInfoChange}
+                      maxLength="4"
+                      placeholder="123"
+                    />
+                  </div>
+                </form>
+              </div>
+              <div className="modal-footer">
+                <button
+                  className="btn btn-secondary"
+                  onClick={handleCardModalClose}
+                >
+                  Cancelar
+                </button>
+                <button className="btn btn-primary" onClick={handleSaveCard}>
+                  Guardar Tarjeta
                 </button>
               </div>
             </div>

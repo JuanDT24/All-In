@@ -18,7 +18,7 @@ class DatabaseController:
             raise
 
     def close(self):
-        if self.connection:
+        if self.connection and not self.connection.closed:
             self.connection.close()
 
     def query(self, query_sql, params=None):
@@ -33,12 +33,22 @@ class DatabaseController:
         except Exception as e:
             print(f"Error executing query: {e}")
             raise
-        finally:
-            self.close()
 
     def ensure_connection(self):
-        if self.connection.closed:
+        if not self.connection or self.connection.closed:
             self.connect()
+
 ### Instancia única            
 client = DatabaseController()
-client.connect()
+client2 = DatabaseController()
+client3 = DatabaseController()
+
+clients1 = DatabaseController()
+clients2 = DatabaseController()
+clients3 = DatabaseController()
+clients4 = DatabaseController()
+clients = []
+clients.append(clients1)
+clients.append(clients2)
+clients.append(clients3)
+clients.append(clients4)
