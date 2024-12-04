@@ -1,5 +1,5 @@
 from modules.item import Item
-from database_controller import client, client2, clients
+from database_controller import client, client2, client3, clients
 import psycopg2
 import os
 
@@ -68,7 +68,7 @@ class itemController():
                 else: 
                     return None
             except:
-                if i == len(clients) - 1:
+                if i == len(clients):
                     i = 0
                 i = i + 1
     
@@ -95,10 +95,9 @@ class itemController():
                 result = self.getMaxBidbyItem(item['iditem'], 1)
                 if result != []:
                     self.changeIdBuyer(item['iditem'], result[0]['idbidder'])
-        return client2.close()
 
     def getMaxBidbyItem(self, id, option = 0):
-        result = client2.query(f"Select * from bids where iditem = {id} and price = (Select max(price) from bids where iditem = {id}) order by biddate desc limit 1")
+        result = client3.query(f"Select * from bids where iditem = {id} and price = (Select max(price) from bids where iditem = {id}) order by biddate desc limit 1")
         if result and option == 0:
             return result[0]['price']
         else:
