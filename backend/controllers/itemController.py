@@ -97,7 +97,7 @@ class itemController():
                     self.changeIdBuyer(item['iditem'], result[0]['idbidder'])
 
     def getMaxBidbyItem(self, id, option = 0):
-        result = client3.query(f"Select * from bids where iditem = {id} and price = (Select max(price) from bids where iditem = {id}) order by biddate desc limit 1")
+        result = client2.query(f"Select * from bids where iditem = {id} and price = (Select max(price) from bids where iditem = {id}) order by biddate desc limit 1")
         if result and option == 0:
             return result[0]['price']
         else:
