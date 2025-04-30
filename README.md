@@ -1,2 +1,4 @@
-# All-In
-All-in is the best auction app for all those gambling addicts looking for the most interesting items on sale!
+###  Welcome to All-In!
+All-in is an auction app people for people that are constantly looking for their favorite items at the best prices. 
+
+
